@@ -1,0 +1,216 @@
+.tableContainer {
+    overflow: hidden;
+    overflow-x: scroll;
+    padding:6px;
+    max-height:72vh;
+    height:fit-content;
+    overflow-y: scroll;
+}
+.table {
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.75rem;
+}
+.table, .table tr, .table td {
+    border:0.5px solid rgb(179, 215, 187);
+    background-color: white;
+}
+table.table tbody tr:nth-child(odd) input,
+table.table tbody tr:nth-child(odd) td {
+    background-color: rgb(225, 236, 226);
+}
+.table td input,
+.table td {
+    padding-inline: 4px;
+    text-wrap: nowrap;
+}
+.table td.disabled {
+    background-color: rgb(198, 198, 198);
+    color: rgb(109, 109, 109);
+}
+table.table tr:nth-child(3) td:nth-child(5n + 7),
+table.table tr:nth-child(3) td:nth-child(3),
+table.table tr:nth-child(n+4) td:not(:has(input)) {
+  background-color: #fff0d2;
+  color: #82a472;
+}
+.table tr:first-child td {
+    font-weight: 600;
+    background-color: rgb(113, 145, 113) !important;
+    color:rgb(217, 236, 214);
+}
+
+.table tr:nth-child(2) td input {
+    width: 100%;
+}
+.table tr:nth-child(3) td {
+    text-align: center;
+}
+.table input {
+    outline: none;
+    border: none;
+}
+.table td:has(input) {
+    padding:0px;
+}
+.table tr td input {
+    border:none;
+    width: 80px;
+}
+.table input:hover:not(:focus),
+.table td:has(input:hover):not(:has(input:focus)) {
+    background-color: rgb(203, 242, 255) !important;
+    z-index: 1;
+}
+.table td {
+    position: relative;
+}
+.table td:has(input:focus) {
+    outline: 1px solid rgb(138, 138, 255);
+    box-shadow: 1px 1px 2px black;
+    z-index: 20 !important;
+}
+.table tr:nth-child(2) input:not(:focus), 
+.table tr:nth-child(2) td {
+    text-align: center;
+}
+.table tr td input:not(:focus) {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display:inline-block;
+}
+.table tr:nth-child(n+3) td:nth-child(2) input, 
+.table tr:nth-child(n+3) td:nth-child(4) input, 
+.table tr:nth-child(n+3) td:nth-child(5) input, 
+.table tr:nth-child(n+3) td:nth-child(6) input,
+.table tr:nth-child(n+3) td:nth-child(5n + 7) {
+    text-align: right;
+}
+.table tr:nth-child(n+3) input:not(:focus)::placeholder {
+    text-align: left;
+}
+
+/* 2nd row sticky */ 
+.table tbody tr:nth-child(2) td {
+  position: sticky;
+  top: -6px;
+  background: white;
+  z-index: 9;
+}
+/* 3rd row sticky */
+.table tbody tr:nth-child(3) td {
+  position: sticky;
+  top: 15px;
+  z-index: 8;
+}
+.table tbody tr:nth-child(2) td:nth-child(1),
+.table tbody tr:nth-child(3) td:nth-child(1) {
+    position: sticky;
+    left: -6px;
+    z-index: 12;
+}
+.table tbody tr:nth-child(n+3) td:nth-child(1) {
+  position: sticky;
+  left: -6px;
+  z-index: 2;
+}
+.table tbody tr:nth-child(n+3) td:nth-child(2) {
+  position: sticky;
+  left: 93px;
+  z-index: 2;
+}
+.table tr:nth-child(n+3) td:nth-child(3) {
+    position: sticky;
+    left:188px;
+    z-index: 2;
+}
+table.table tr:nth-child(3) td:nth-child(-n+3) {
+  z-index: 15;
+}
+.table td div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.table td:has(input) button {
+    height: 12px;
+    width: 12px;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 2px;
+    background-color: rgb(243, 243, 243);
+    border: 1px solid rgb(186, 186, 186);
+    color: rgb(186, 186, 186);
+    border-radius: 2px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.table td:has(input) button:hover {
+    background-color: rgb(255, 120, 120);
+    border: 1px solid rgb(255, 120, 120);
+    color:white;
+}
+.table td:has(input) button:hover::after {
+    color: white;
+}
+
+
+
+.btnContainer {
+    display: flex;
+    justify-content: end;
+    gap:8px;
+    margin-bottom: 12px;
+}
+.btnContainer button {
+    background-color: transparent;
+    border:none;
+    width:10ch;
+    font-size: 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.btnContainer .save {
+    background-color: rgb(31, 94, 221);
+    font-weight: 900;
+    color: white;
+}
+.btnContainer .save:hover {
+    opacity: 0.75;
+}
+.btnContainer .close {
+    border: 1px solid rgb(180, 180, 180);
+    color: rgb(180, 180, 180);
+    font-weight: 600;
+}
+.btnContainer .close:hover {
+    background-color: rgb(180, 180, 180);
+    color: white;
+}
+
+
+
+.attach {
+    display: flex;
+    flex-direction: column;
+    gap:12px;
+}
+.attach input {
+    font-size: 0.9rem;
+}
+.attach ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap:4px;
+}
+.attach li {
+    border: 1px solid black;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+}
