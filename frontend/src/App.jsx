@@ -16,7 +16,7 @@ function App() {
           <Sidebar />
 
           <div className="content">
-            <h1>Create Canvass</h1>
+            <h1>Edit Canvass</h1>
             <div className="inner-content">
               <EditCanvass />
             </div>

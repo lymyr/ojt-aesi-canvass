@@ -55,7 +55,7 @@ table.table tr:nth-child(n+4) td:not(:has(input)) {
 }
 .table tr td input {
     border:none;
-    width: 80px;
+    width: 100px;
 }
 .table input:hover:not(:focus),
 .table td:has(input:hover):not(:has(input:focus)) {
@@ -116,12 +116,12 @@ table.table tr:nth-child(n+4) td:not(:has(input)) {
 }
 .table tbody tr:nth-child(n+3) td:nth-child(2) {
   position: sticky;
-  left: 93px;
+  left: 113px;
   z-index: 2;
 }
 .table tr:nth-child(n+3) td:nth-child(3) {
     position: sticky;
-    left:188px;
+    left:214px;
     z-index: 2;
 }
 table.table tr:nth-child(3) td:nth-child(-n+3) {
@@ -214,3 +214,66 @@ table.table tr:nth-child(3) td:nth-child(-n+3) {
     font-size: 0.8rem;
     border-radius: 4px;
 }
+
+
+
+
+
+.changelog {
+    font-size: 0.75rem;
+    display:flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 8px;
+    background-color: rgb(243, 243, 243);
+}
+.header {
+    text-align: right;
+}
+.header > h1:nth-child(1) {
+    font-size: 1.4rem;
+}
+.header > h1:nth-child(2) {
+    font-size: 1rem;
+    font-weight: 400;
+}
+.beforeAfter {
+    display:flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width:100%;
+}
+.beforeAfter > * {
+   padding:8px;
+   display:flex;
+   gap:8px;
+   flex-wrap: wrap;
+}
+.before {
+    border-left: 4px solid rgb(196, 92, 92);
+    background-color: rgb(235, 213, 213);
+    color:rgb(120, 64, 64);    
+}
+.after {
+    border-left: 4px solid rgb(125, 204, 125);
+    background-color: rgb(224, 241, 224);
+    color:rgb(42, 80, 42);
+}
+.rowContainer {
+  padding:12px;
+}
+.before .rowContainer {
+    background-color: rgb(247, 224, 224);
+}
+.after .rowContainer {
+    background-color: rgb(235, 251, 235);
+}
+.rowContainer > p:nth-child(1) {
+    font-size: 1rem;
+    text-align: center;
+    font-weight: 900;
+}
+.vendorItem > p:nth-child(1){
+    font-weight: 900;
+}
+
