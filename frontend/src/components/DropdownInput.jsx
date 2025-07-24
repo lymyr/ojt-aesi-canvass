@@ -9,7 +9,7 @@ function DropdownInput({
   suggestions = [],
   allowAdd = true,
   onAdd = () => {},
-  disabled={disabled}
+  disabled = false,
 }) {
   const inputRef = useRef(null);
 
@@ -18,23 +18,24 @@ function DropdownInput({
     allowAdd && value && !lowerSuggestions.includes(value.toLowerCase());
 
   const handleBlur = (e) => {
-    if (value.startsWith('Add "') && value.endsWith('"')) {
-      const actual = value.slice(5, -1);
-      onAdd(actual);
-    }
+    // Keep this for fallback cases
     onBlur?.(e);
   };
 
   const handleChange = (e) => {
-    onChange(e);
-
     const newValue = e.target.value;
 
+    // If the user selects the "Add ..." option
     if (newValue.startsWith('Add "') && newValue.endsWith('"')) {
-      setTimeout(() => {
-        inputRef.current?.blur();
-      }, 0);
+      const actual = newValue.slice(5, -1);
+      onAdd(actual);
+
+      // Force unfocus only when selected from dropdown
+      inputRef.current?.blur();
+      return;
     }
+
+    onChange(e);
   };
 
   return (

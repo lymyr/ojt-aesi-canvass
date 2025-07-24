@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
@@ -17,17 +18,18 @@ function Sidebar() {
 
         <div className="nav-links">
           {[
-            ["dashboard", "Dashboard"],
-            ["vendor2", "Vendors"],
-            ["item", "Items"],
-            ["uom", "Units of Measure"],
-            ["user", "Users"],
-            ["logout", "Log out"],
-          ].map(([icon, text]) => (
-            <div key={icon} className="nav-item">
+            ["/", "dashboard", "Dashboard"],
+            ["/vendors", "vendor2", "Vendors"],
+            ["/items", "item", "Items"],
+            ["/uom", "uom", "Units of Measure"],
+            ["/users", "user", "Users"],
+            ["/logout", "logout", "Log out"],
+            ["/canvass/edit", "vendor", "Temp Edit"]
+          ].map(([route, icon, text]) => (
+            <Link to={route} key={icon} className="nav-item">
               <img src={`../src/assets/${icon}.svg`} alt={text} />
               {!collapsed && <p>{text}</p>}
-            </div>
+            </Link>
           ))}
         </div>
       </div>

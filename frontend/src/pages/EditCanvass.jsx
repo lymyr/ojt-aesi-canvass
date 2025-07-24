@@ -1,19 +1,26 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import Tabs from "../components/Tabs";
-import s from "./NewCanvass.module.css";
+import s from "./CanvassButtons.module.css";
 import CanvassForm from "../components/CanvassForm";
 import Changelog from "../components/Changelog";
 import DocAttach from "../components/DocAttach";
 
-function EditCanvass() {
+function EditCanvass({setTitle}) {
+  useEffect(() => {
+    setTitle("Edit Canvass");
+  }, [setTitle]);
+
   const [activeTab, setActiveTab] = useState("table");
   const [editClicked, setEditClicked] = useState(false);
-
+  
   return (
     <>
       <div className={s.btnContainer}>
         {!editClicked ? (
-          <button className={s.save} onClick={() => setEditClicked(true)}>Edit</button>
+          <>
+            <button className={s.close}>Close</button>
+            <button className={s.save} onClick={() => setEditClicked(true)}>Edit</button>
+          </>
         ) : (
           <>
             <button className={s.close} onClick={() => setEditClicked(false)}>Cancel</button>
@@ -23,22 +30,22 @@ function EditCanvass() {
       </div>
 
       <Tabs
-        tabs={["table", "documents", "Changelog"]}
+        tabs={["table", "documents", "Changelog", "PDF"]}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
 
-      {activeTab === "table" && (
+      <div style={{ display: activeTab === "table" ? "block" : "none" }}>
         <CanvassForm isEditing={true} editClicked={editClicked} />
-      )}
+      </div>
 
-      {activeTab === "documents" && (
+      <div style={{ display: activeTab === "documents" ? "block" : "none" }}>
         <DocAttach />
-      )}
+      </div>
 
-      {activeTab === "Changelog" && (
+      <div style={{ display: activeTab === "Changelog" ? "block" : "none" }}>
         <Changelog />
-      )}
+      </div>
     </>
   );
 }

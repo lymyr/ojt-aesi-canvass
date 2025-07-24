@@ -34,7 +34,7 @@
     color: rgb(109, 109, 109);
 }
 
-.table tr:nth-child(3) td:nth-child(5n + 7),
+.table tr:nth-child(3) td:nth-child(5n + 8),
 .table tr:nth-child(3) td:nth-child(3),
 .table tr:nth-child(n+4) td:not(:has(input)) {
     background-color: #fff0d2;
@@ -45,10 +45,6 @@
     font-weight: 600;
     background-color: rgb(113, 145, 113) !important;
     color: rgb(217, 236, 214);
-}
-
-.table tr:nth-child(2) td input {
-    width: 100%;
 }
 
 .table tr:nth-child(3) td {
@@ -66,7 +62,10 @@
 
 .table tr td input {
     border: none;
-    width: 100px;
+    width: 100%;
+}
+.table tr td div:has(input) {
+    display:flex;
 }
 
 .table input:hover:not(:focus):not(:disabled),
@@ -100,7 +99,7 @@
 .table tr:nth-child(n+3) td:nth-child(4) input,
 .table tr:nth-child(n+3) td:nth-child(5) input,
 .table tr:nth-child(n+3) td:nth-child(6) input,
-.table tr:nth-child(n+3) td:nth-child(5n + 7) {
+.table tr:nth-child(n+4) td:nth-child(5n + 8) {
     text-align: right;
 }
 
@@ -127,6 +126,15 @@
     left: -6px;
     z-index: 12;
 }
+/* item sticky */
+table.table tbody tr:nth-child(2) td:nth-child(1),
+table.table tbody tr:nth-child(3) td:nth-child(1),
+table.table tbody tr:nth-child(3) td:nth-child(2) {
+    z-index:14;
+}
+/* table.table tbody tr:nth-child(n + 4) td:nth-child(3) {
+    border-right: 1px solid rgb(150, 150, 150);
+} */
 /* item input sticky consistency START */
 .table tbody tr:nth-child(n+3) td:nth-child(1) {
     position: sticky;
@@ -135,6 +143,7 @@
     min-width: 118px;
     max-width:118px;
 }
+.table tbody tr:nth-child(2) td:nth-child(n + 2) > div,
 .table tbody tr:nth-child(n+3) td:nth-child(1) > div {
     display:flex;
     padding-right: 2px;
@@ -151,7 +160,7 @@
 
 .table tr:nth-child(n+3) td:nth-child(3) {
     position: sticky;
-    left: 213px;
+    left: 207.5px;
     z-index: 12;
 }
 
@@ -192,4 +201,15 @@
 
 table.table input:disabled::placeholder {
     color:transparent;
+}
+
+
+
+.table input[type=number]::-webkit-inner-spin-button,
+.table input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.table input[type=number] {
+  -moz-appearance: textfield;
 }

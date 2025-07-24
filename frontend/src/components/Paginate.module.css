@@ -1,0 +1,33 @@
+.container {
+    display: flex;
+    align-items: center;
+    gap:12px;
+    font-size: 0.75rem;
+}
+
+.container button {
+    background-color: rgb(157, 182, 143);
+    border: none;
+    color: rgb(59, 80, 61);
+    width: 70px;
+    padding-block:2px;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.container button:not(:disabled):hover {
+    background-color: rgb(97, 120, 83);
+    color: rgb(213, 222, 214);
+    font-weight: 900;
+}
+.container button:disabled {
+    background-color: rgb(190, 196, 186);
+    color: rgb(132, 141, 133);
+    cursor: default;
+}
+
+.container span {
+    color:rgb(90, 113, 77);
+    letter-spacing: 1px;
+}
