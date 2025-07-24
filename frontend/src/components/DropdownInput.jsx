@@ -9,6 +9,7 @@ function DropdownInput({
   suggestions = [],
   allowAdd = true,
   onAdd = () => {},
+  disabled={disabled}
 }) {
   const inputRef = useRef(null);
 
@@ -46,6 +47,7 @@ function DropdownInput({
         onChange={handleChange}
         onBlur={handleBlur}
         placeholder={placeholder}
+        disabled={disabled}
       />
       <datalist id={id}>
         {showAddOption && <option value={`Add "${value}"`} />}
