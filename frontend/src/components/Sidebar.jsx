@@ -1,8 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom"; // ✅ import useLocation
 
 function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation(); // ✅ get current path
+
+  const isActive = (route) => {
+    return location.pathname === route || location.pathname.startsWith(route + "/");
+  };
 
   return (
     <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
@@ -26,7 +31,11 @@ function Sidebar() {
             ["/logout", "logout", "Log out"],
             ["/canvass/edit", "vendor", "Temp Edit"]
           ].map(([route, icon, text]) => (
-            <Link to={route} key={icon} className="nav-item">
+            <Link
+              to={route}
+              key={icon}
+              className={`nav-item ${isActive(route) ? "active" : ""}`} // ✅ apply class
+            >
               <img src={`../src/assets/${icon}.svg`} alt={text} />
               {!collapsed && <p>{text}</p>}
             </Link>
