@@ -127,32 +127,39 @@
     left: -6px;
     z-index: 12;
 }
-
+/* item input sticky consistency START */
 .table tbody tr:nth-child(n+3) td:nth-child(1) {
     position: sticky;
     left: -6px;
     z-index: 10;
+    min-width: 118px;
+    max-width:118px;
 }
-
+.table tbody tr:nth-child(n+3) td:nth-child(1) > div {
+    display:flex;
+    padding-right: 2px;
+}
+.table tbody tr:nth-child(n+3) td:nth-child(1) > div input {
+    width:100%;
+}
+/* item input sticky consistency END */
 .table tbody tr:nth-child(n+3) td:nth-child(2) {
     position: sticky;
-    left: 113px;
+    left: 112px;
     z-index: 11;
 }
 
 .table tr:nth-child(n+3) td:nth-child(3) {
     position: sticky;
-    left: 214px;
+    left: 213px;
     z-index: 12;
 }
 
 .table tr:nth-child(3) td:nth-child(-n+3) {
     z-index: 15;
 }
-/* for sticky consistency */
-table.table tr:nth-child(n+3) td:first-child {
-    min-width: 118px;
-}
+
+
 .table td div {
     display: flex;
     align-items: center;
@@ -165,7 +172,6 @@ table.table tr:nth-child(n+3) td:first-child {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-right: 2px;
     background-color: rgb(243, 243, 243);
     border: 1px solid rgb(186, 186, 186);
     color: rgb(186, 186, 186);

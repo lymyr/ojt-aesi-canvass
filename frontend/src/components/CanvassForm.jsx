@@ -3,6 +3,17 @@ import DropdownInput from "./DropdownInput";
 import s from "./CanvassForm.module.css";
 
 function CanvassForm({ isEditing = false, editClicked = true }) {
+    const formatNumber = (value) => {
+        const number = parseFloat(value);
+        if (isNaN(number)) return "";
+        return number.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
+        };
+    const parseNumber = (formatted) =>
+    parseFloat(formatted.toString().replace(/,/g, "")) || 0;
+
   const [items, setItems] = useState([
     { id: Date.now(), description: "", typed: "", vendors: [] },
   ]);
@@ -130,7 +141,7 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
           {items.map((item, index) => (
             <tr key={item.id}>
               <td>
-                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                <div>
                   <DropdownInput
                     id={`items-${item.id}`}
                     value={item.typed || item.description}
@@ -182,7 +193,7 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
                     <input
                       type="text"
                       placeholder="Price"
-                      value={item.vendors?.[j]?.price || ""}
+                      value={formatNumber(item.vendors?.[j]?.price)}
                       onChange={(e) =>
                         updateVendorField(index, j, "price", e.target.value)
                       }
