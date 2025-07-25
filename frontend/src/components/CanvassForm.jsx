@@ -231,7 +231,12 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
                 disabled={disableInput}
               />
             </td>
-            <td>{Number(vendorData.total || 0).toLocaleString()}</td>
+            <td>
+              {Number(vendorData.total || 0).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </td>
           </React.Fragment>
         );
       })}

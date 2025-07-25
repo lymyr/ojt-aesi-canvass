@@ -30,3 +30,26 @@
     background-color: rgb(180, 180, 180);
     color: white;
 }
+
+
+/* for edit view */
+.detailContainer {
+    padding-inline: 8px;
+    padding-block: 16px;
+    display: flex;
+    flex-direction: column;
+    gap:12px;
+    
+}
+.detailContainer > div:nth-child(1) {
+    text-align: center;
+}
+.detailContainer > div:nth-child(1) > p:nth-child(1) {
+    font-weight: 900;
+    font-size: 1.2rem;
+    margin-bottom: -2px;
+    letter-spacing: 0.6px;
+}
+.detailContainer span {
+    font-weight: 600;
+}

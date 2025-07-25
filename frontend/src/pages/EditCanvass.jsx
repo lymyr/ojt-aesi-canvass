@@ -35,6 +35,18 @@ function EditCanvass({setTitle}) {
         setActiveTab={setActiveTab}
       />
 
+      <div className={s.detailContainer}>
+        <div>
+          <p>Canvass #123</p>
+          <p>Pending</p>
+        </div>
+        <div>
+          <p><span>Created by: </span>Username</p>
+          <p><span>Create Date: </span>{new Date().toLocaleString()}</p>
+        </div>
+      </div>
+
+
       <div style={{ display: activeTab === "table" ? "block" : "none" }}>
         <CanvassForm isEditing={true} editClicked={editClicked} />
       </div>
