@@ -83,9 +83,9 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
                 <div>
                   <DropdownInput
                     id={`vendor-${i}`}
-                    placeholder="Enter vendor"
                     value={vendor}
                     suggestions={vendorSuggestions}
+                    placeholder={"Add Vendor"}
                     onChange={(e) => {
                       const updated = [...vendors];
                       updated[i] = e.target.value;
@@ -106,7 +106,7 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
                     }}
                     disabled={isReadOnly}
                   />
-                  {!isReadOnly && <button onClick={() => removeVendor(i)}>-</button>}
+                  {!isReadOnly && <button onClick={() => removeVendor(i)}>X</button>}
                 </div>
               </td>
             ))}
@@ -137,8 +137,8 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
           <DropdownInput
             id={`items-${item.id}`}
             value={item.typed || item.description}
-            placeholder="Enter item"
             suggestions={itemSuggestions}
+            placeholder={"Add Item"}
             onChange={(e) => {
               const value = e.target.value;
               const updated = [...items];
@@ -167,14 +167,13 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
             }}
             disabled={isReadOnly}
           />
-          {!isReadOnly && <button onClick={() => removeItem(item.id)}>-</button>}
+          {!isReadOnly && <button onClick={() => removeItem(item.id)}>X</button>}
         </div>
       </td>
 
       <td>
         <input
           type="number"
-          placeholder="Enter amount"
           min="0"
           step="1"
           disabled={isReadOnly || isRowDisabled}
@@ -193,7 +192,6 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
             <td>
               <input
                 type="number"
-                placeholder="Price"
                 min="0"
                 value={vendorData.price || ""}
                 onChange={(e) => updateVendorField(index, j, "price", e.target.value)}
@@ -203,7 +201,6 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
             <td>
               <input
                 type="number"
-                placeholder="Stock"
                 min="0"
                 step="1"
                 value={vendorData.stock || ""}
@@ -216,7 +213,6 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
                 type="number"
                 min="0"
                 step="1"
-                placeholder="Amount"
                 value={vendorData.amount || ""}
                 onChange={(e) => updateVendorField(index, j, "amount", e.target.value)}
                 disabled={disableInput}
@@ -225,7 +221,6 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
             <td>
               <input
                 type="text"
-                placeholder="Remarks"
                 value={vendorData.remarks || ""}
                 onChange={(e) => updateVendorField(index, j, "remarks", e.target.value)}
                 disabled={disableInput}

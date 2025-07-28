@@ -10,7 +10,7 @@
 .table {
     border-collapse: separate;
     border-spacing: 0;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
 }
 
 .table, .table tr, .table td {
@@ -18,6 +18,18 @@
     background-color: white;
 }
 
+.table tr:first-child {
+    font-size: 1rem;
+}
+.table tr:first-child td {
+    padding: 6px 12px;
+    letter-spacing: 1px;
+}
+.table tr:nth-child(2) td:nth-child(1),
+.table tr:nth-child(2) td:nth-child(n + 2):has(input:not(:focus)),
+.table tr:nth-child(3) {
+    font-weight: 600;
+}
 .table tbody tr:nth-child(odd) input,
 .table tbody tr:nth-child(odd) td {
     background-color: rgb(225, 236, 226);
@@ -89,6 +101,9 @@
     text-align: center;
 }
 
+.table tr:nth-child(2) input:placeholder-shown {
+    font-weight: 400;
+}
 .table tr td input:not(:focus) {
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -96,9 +111,9 @@
 }
 
 .table tr:nth-child(n+3) td:nth-child(2) input,
-.table tr:nth-child(n+3) td:nth-child(4) input,
-.table tr:nth-child(n+3) td:nth-child(5) input,
-.table tr:nth-child(n+3) td:nth-child(6) input,
+.table tr:nth-child(n+3) td:nth-child(5n + 4) input,
+.table tr:nth-child(n+3) td:nth-child(5n + 5) input,
+.table tr:nth-child(n+3) td:nth-child(5n + 6) input,
 .table tr:nth-child(n+4) td:nth-child(5n + 8) {
     text-align: right;
 }
@@ -160,7 +175,7 @@ table.table tbody tr:nth-child(3) td:nth-child(2) {
 
 .table tr:nth-child(n+3) td:nth-child(3) {
     position: sticky;
-    left: 207.5px;
+    left: 222px;
     z-index: 12;
 }
 
@@ -176,13 +191,13 @@ table.table tbody tr:nth-child(3) td:nth-child(2) {
 }
 
 .table td:has(input) button {
-    height: 12px;
-    width: 12px;
+    height: 14px;
+    width: 14px;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgb(243, 243, 243);
-    border: 1px solid rgb(186, 186, 186);
+    background-color: transparent;
+    border: none;
     color: rgb(186, 186, 186);
     border-radius: 2px;
     cursor: pointer;
@@ -212,4 +227,14 @@ table.table input:disabled::placeholder {
 }
 .table input[type=number] {
   -moz-appearance: textfield;
+}
+
+.table input:disabled,
+.table td:has(input:disabled) {
+    background-color: rgb(227, 227, 227);
+    color:black;
+}
+.table tr:nth-child(odd) input:disabled,
+.table tr:nth-child(odd) td:has(input:disabled) {
+    background-color: rgb(204, 217, 205);
 }

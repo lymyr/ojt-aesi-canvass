@@ -23,13 +23,11 @@ function Sidebar() {
 
         <div className="nav-links">
           {[
-            ["/", "dashboard", "Dashboard"],
+            ["/canvass", "dashboard", "Dashboard"],
             ["/vendors", "vendor2", "Vendors"],
             ["/items", "item", "Items"],
             ["/uom", "uom", "Units of Measure"],
             ["/users", "user", "Users"],
-            ["/logout", "logout", "Log out"],
-            ["/canvass/edit", "vendor", "Temp Edit"]
           ].map(([route, icon, text]) => (
             <Link
               to={route}
@@ -42,14 +40,6 @@ function Sidebar() {
           ))}
         </div>
       </div>
-
-      {!collapsed && (
-        <div className="profile">
-          <p>name</p>
-          <p>maker</p>
-          <p>reset password</p>
-        </div>
-      )}
     </div>
   );
 }

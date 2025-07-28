@@ -3,7 +3,6 @@
     display:flex;
     flex-direction: column;
     gap:16px;
-    padding-inline: 8px;
 }
 .changelog {
     font-size: 0.75rem;

@@ -19,15 +19,17 @@
     color: white;
 }
 .btnContainer .save:hover {
-    opacity: 0.75;
+    background-color: rgb(24, 101, 255);
+    border: 1px solid rgb(24, 101, 255);
+    font-weight: 900;
 }
 .btnContainer .close {
-    border: 1px solid rgb(180, 180, 180);
-    color: rgb(180, 180, 180);
+    border: 1px solid rgb(204, 110, 110);
+    color: rgb(204, 110, 110);
     font-weight: 600;
 }
 .btnContainer .close:hover {
-    background-color: rgb(180, 180, 180);
+    background-color: rgb(204, 110, 110);
     color: white;
 }
 

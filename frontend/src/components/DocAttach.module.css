@@ -7,6 +7,7 @@
 }
 .attach input {
     font-size: 0.9rem;
+
 }
 .attach ul {
     list-style: none;
@@ -17,9 +18,41 @@
     flex-wrap: wrap;
     gap:4px;
 }
+
 .attach li {
     border: 1px solid black;
     padding: 4px 8px;
     font-size: 0.8rem;
     border-radius: 4px;
+}
+
+.attach input[type="file"] {
+    width: fit-content;
+}
+
+.attach input[type="file"]::file-selector-button {
+  background-color: rgb(118, 146, 120);
+  color: rgb(227, 248, 229);
+  font-weight: 600;
+  border: none;
+  padding-block: 6px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-right: 8px;
+  width: 100px;
+}
+
+.attach input[type="file"]:not(:disabled)::file-selector-button:hover {
+    background-color: rgb(157, 182, 143);
+    color: rgb(59, 80, 61);
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.attach input[type="file"]:disabled {
+    color:gray;
+}
+.attach input[type="file"]:disabled::file-selector-button {
+    background-color: rgb(190, 196, 186);
+    color: rgb(132, 141, 133);
 }

@@ -18,24 +18,33 @@ function DropdownInput({
     allowAdd && value && !lowerSuggestions.includes(value.toLowerCase());
 
   const handleBlur = (e) => {
-    // Keep this for fallback cases
     onBlur?.(e);
   };
 
   const handleChange = (e) => {
     const newValue = e.target.value;
 
-    // If the user selects the "Add ..." option
     if (newValue.startsWith('Add "') && newValue.endsWith('"')) {
       const actual = newValue.slice(5, -1);
       onAdd(actual);
-
-      // Force unfocus only when selected from dropdown
       inputRef.current?.blur();
       return;
     }
 
     onChange(e);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      const inputValue = value.trim();
+      const isNew = allowAdd && inputValue && !lowerSuggestions.includes(inputValue.toLowerCase());
+
+      if (isNew) {
+        onAdd(inputValue); // Auto-add on enter if not in list
+      }
+
+      inputRef.current?.blur(); // Unfocus
+    }
   };
 
   return (
@@ -47,6 +56,7 @@ function DropdownInput({
         value={value}
         onChange={handleChange}
         onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
         placeholder={placeholder}
         disabled={disabled}
       />

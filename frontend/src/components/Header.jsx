@@ -1,10 +1,12 @@
+import { Link } from "react-router-dom"
+
 function Header() {
     return(
         <div className="header">
             <div className="headerLinks">
                 <p>username</p>
                 <p>reset password</p>
-                <p>log out</p>
+                <Link to="/"><p>log out</p></Link>
             </div>
         </div>
     )

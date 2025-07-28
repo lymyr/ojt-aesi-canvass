@@ -12,26 +12,26 @@ function CreateCanvass({setTitle}) {
         setTitle("Create Canvass");
     }, [setTitle]);
 
-  const [activeTab, setActiveTab] = useState("table");
+  const [activeTab, setActiveTab] = useState("canvass sheet");
   return (
     <>
       <div className={s.btnContainer}>
-        <Link to="/"><button className={s.close}>Close</button></Link>
-        <button className={s.save}>Create</button>
+        <Link to="/canvass"><button className={s.close}>Close</button></Link>
+        <button className={s.save}>Save</button>
       </div>
 
       <Tabs
-        tabs={["table", "documents"]}
+        tabs={["canvass sheet", "documents"]}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
 
-      <div style={{ display: activeTab === "table" ? "block" : "none" }}>
+      <div style={{ display: activeTab === "canvass sheet" ? "block" : "none" }}>
         <CanvassForm />
       </div>
 
       <div style={{ display: activeTab === "documents" ? "block" : "none" }}>
-        <DocAttach />
+        <DocAttach editClicked={true}/>
       </div>
     </>
   );

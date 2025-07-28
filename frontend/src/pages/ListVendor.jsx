@@ -1,10 +1,19 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Search from "../components/Search";
 import ListView from "../components/ListView";
 import Paginate from "../components/Paginate";
+import FormVendor from "../components/FormVendor"; // ⬅️ Add this import
 import s from "./listActions.module.css";
 
 function ListVendor({ setTitle }) {
+  const [showPopup, setShowPopup] = useState(false);
+
+  const handleAddVendor = (data) => {
+    console.log("Vendor saved:", data);
+    setShowPopup(false);
+    // Add logic to update your vendor list
+  };
+
   useEffect(() => {
     setTitle("Vendors List");
   }, [setTitle]);
@@ -13,7 +22,7 @@ function ListVendor({ setTitle }) {
     <div className={s.container}>
       <div className={s.listActions}>
         <Search />
-        <button>Add Vendor</button>
+        <button onClick={() => setShowPopup(true)}>Add Vendor</button>
       </div>
 
       <ListView
@@ -39,6 +48,15 @@ function ListVendor({ setTitle }) {
       />
 
       <Paginate currentPage={1} totalPages={3} />
+
+      {/* ⬇️ Popup rendering here */}
+      {showPopup && (
+        <FormVendor
+          isEditing={false}
+          onClose={() => setShowPopup(false)}
+          onSave={handleAddVendor}
+        />
+      )}
     </div>
   );
 }

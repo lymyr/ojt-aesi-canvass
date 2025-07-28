@@ -79,22 +79,6 @@
   background-color: rgb(105, 139, 82);
   cursor: pointer;
 }
-.profile {
-  display:flex;
-  flex-direction: column;
-  align-items: center;
-}
-.profile > *:nth-child(2) {
-  font-weight: 200;
-  margin-top: -4px;
-  margin-bottom: 2px;
-  font-size: 0.75rem;
-}
-.profile > *:nth-child(3) {
-  opacity: 0.8;
-  font-weight: 600;
-  font-size: 0.75rem;
-}
 
 .sidebar.collapsed .sidebar-top {
   margin-top: 24px;
@@ -137,15 +121,15 @@
   font-size: 0.75rem;
   grid-area: header;
 }
-.headerLinks > *:nth-child(1) {
-  font-size: 0.8rem;
-}
 .headerLinks {
   display:flex;
   gap:24px;
   justify-self: end;
   align-items: center;
   margin-left: auto;
+}
+.headerLinks > *:hover {
+  color: rgb(81, 109, 62);
 }
 .header img {
   height:16px;

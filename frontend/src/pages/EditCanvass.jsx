@@ -4,13 +4,15 @@ import s from "./CanvassButtons.module.css";
 import CanvassForm from "../components/CanvassForm";
 import Changelog from "../components/Changelog";
 import DocAttach from "../components/DocAttach";
+import FormItem from "../components/FormItem";
+import FormVendor from "../components/FormVendor"
 
 function EditCanvass({setTitle}) {
   useEffect(() => {
-    setTitle("Edit Canvass");
+    setTitle("Canvass #123");
   }, [setTitle]);
 
-  const [activeTab, setActiveTab] = useState("table");
+  const [activeTab, setActiveTab] = useState("canvass sheet");
   const [editClicked, setEditClicked] = useState(false);
   
   return (
@@ -30,15 +32,13 @@ function EditCanvass({setTitle}) {
       </div>
 
       <Tabs
-        tabs={["table", "documents", "Changelog", "PDF"]}
+        tabs={["canvass sheet", "documents", "Changelog", "PDF"]}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
       />
 
       <div className={s.detailContainer}>
         <div>
-          <p>Canvass #123</p>
-          <p>Pending</p>
         </div>
         <div>
           <p><span>Created by: </span>Username</p>
@@ -47,16 +47,19 @@ function EditCanvass({setTitle}) {
       </div>
 
 
-      <div style={{ display: activeTab === "table" ? "block" : "none" }}>
+      <div style={{ display: activeTab === "canvass sheet" ? "block" : "none" }}>
         <CanvassForm isEditing={true} editClicked={editClicked} />
       </div>
 
       <div style={{ display: activeTab === "documents" ? "block" : "none" }}>
-        <DocAttach />
+        <DocAttach editClicked={editClicked}/>
       </div>
 
       <div style={{ display: activeTab === "Changelog" ? "block" : "none" }}>
         <Changelog />
+      </div>
+
+      <div style={{ display: activeTab === "PDF" ? "block" : "none" }}>
       </div>
     </>
   );
