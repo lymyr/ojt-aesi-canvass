@@ -5,16 +5,33 @@ import Paginate from "../components/Paginate";
 import FormUser from "../components/FormUser";
 import s from "./listActions.module.css";
 
+import axios from "../axios"; // assuming this is your axios setup
+
 function ListUser({ setTitle }) {
   const [showPopup, setShowPopup] = useState(false);
+  const [users, setUsers] = useState([]); // for dynamic list
 
   useEffect(() => {
     setTitle("Users List");
+    fetchUsers();
   }, [setTitle]);
 
-  const handleSaveUser = (data) => {
-    console.log("Saved user:", data);
-    setShowPopup(false);
+  const fetchUsers = () => {
+    axios.get("/api/users")
+      .then(res => setUsers(res.data))
+      .catch(err => console.error("Failed to fetch users:", err));
+  };
+
+  const handleSaveUser = async (data) => {
+    try {
+      const response = await axios.post("/api/users", data);
+      console.log("User added:", response.data.user);
+      setShowPopup(false);
+      fetchUsers(); // refresh list
+    } catch (err) {
+      console.error("Error adding user:", err.response?.data || err.message);
+      alert("Failed to add user. Please check for duplicate username or validation errors.");
+    }
   };
 
   return (
@@ -26,23 +43,25 @@ function ListUser({ setTitle }) {
 
       <ListView
         columns={["User ID", "Username", "Password", "Role"]}
-        rows={[
-          { "User ID": 1, Username: "jdoe", Password: "••••••••", Role: "Maker" },
-          { "User ID": 2, Username: "admin", Password: "••••••••", Role: "Admin" },
-          { "User ID": 3, Username: "maria.approver", Password: "••••••••", Role: "Approver" },
-        ]}
+        rows={users.map(user => ({
+          "User ID": user.id,
+          Username: user.username,
+          Password: "••••••••",
+          Role: user.role.charAt(0).toUpperCase() + user.role.slice(1),
+        }))}
       />
 
-      <Paginate currentPage={1} totalPages={2} />
+      <Paginate currentPage={1} totalPages={1} />
 
-      {showPopup && (
+     {showPopup && (
         <FormUser
           onClose={() => setShowPopup(false)}
-          onSave={handleSaveUser}
+          refreshUsers={fetchUsers}
         />
       )}
     </div>
   );
 }
+
 
 export default ListUser;

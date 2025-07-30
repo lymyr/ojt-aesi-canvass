@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 
 function DropdownInput({
   id,
@@ -7,43 +7,27 @@ function DropdownInput({
   onBlur,
   placeholder,
   suggestions = [],
-  allowAdd = true,
-  onAdd = () => {},
   disabled = false,
+  onMissingValue = null, // 👈 callback if value not in suggestions
 }) {
   const inputRef = useRef(null);
-
   const lowerSuggestions = suggestions.map((s) => s.toLowerCase());
-  const showAddOption =
-    allowAdd && value && !lowerSuggestions.includes(value.toLowerCase());
 
   const handleBlur = (e) => {
+    const inputVal = e.target.value.trim();
+    if (inputVal && !lowerSuggestions.includes(inputVal.toLowerCase())) {
+      onMissingValue?.(inputVal);
+    }
     onBlur?.(e);
   };
 
   const handleChange = (e) => {
-    const newValue = e.target.value;
-
-    if (newValue.startsWith('Add "') && newValue.endsWith('"')) {
-      const actual = newValue.slice(5, -1);
-      onAdd(actual);
-      inputRef.current?.blur();
-      return;
-    }
-
     onChange(e);
   };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      const inputValue = value.trim();
-      const isNew = allowAdd && inputValue && !lowerSuggestions.includes(inputValue.toLowerCase());
-
-      if (isNew) {
-        onAdd(inputValue); // Auto-add on enter if not in list
-      }
-
-      inputRef.current?.blur(); // Unfocus
+      inputRef.current?.blur(); // Trigger blur to check for missing value
     }
   };
 
@@ -61,7 +45,6 @@ function DropdownInput({
         disabled={disabled}
       />
       <datalist id={id}>
-        {showAddOption && <option value={`Add "${value}"`} />}
         {suggestions.map((s, i) => (
           <option key={i} value={s} />
         ))}

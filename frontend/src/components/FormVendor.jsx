@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import styles from "./FormItem.module.css";
+import axios from "../axios";
 
-function FormVendor({ isEditing = false, onClose, onSave, vendorData = {} }) {
+function FormVendor({ isEditing = false, onClose, vendorData = {} }) {
   const [formData, setFormData] = useState({
     name: vendorData.name || "",
     address: vendorData.address || "",
@@ -11,6 +12,7 @@ function FormVendor({ isEditing = false, onClose, onSave, vendorData = {} }) {
 
   const [isEditMode, setIsEditMode] = useState(!isEditing);
   const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -25,9 +27,22 @@ function FormVendor({ isEditing = false, onClose, onSave, vendorData = {} }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return;
-    onSave(formData);
+
+    try {
+      setSaving(true);
+      await axios.post("/api/vendors", {
+        ...formData,
+        active: true, // default to active
+      });
+      onClose(); // Close popup after saving
+    } catch (error) {
+      console.error("Error saving vendor:", error);
+      alert("Failed to save vendor.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -95,9 +110,13 @@ function FormVendor({ isEditing = false, onClose, onSave, vendorData = {} }) {
           </button>
 
           {!isEditing ? (
-            <button className={styles.primary} onClick={handleSubmit}>Add</button>
+            <button className={styles.primary} onClick={handleSubmit} disabled={saving}>
+              {saving ? "Saving..." : "Add"}
+            </button>
           ) : isEditMode ? (
-            <button className={styles.primary} onClick={handleSubmit}>Save</button>
+            <button className={styles.primary} onClick={handleSubmit} disabled={saving}>
+              {saving ? "Saving..." : "Save"}
+            </button>
           ) : (
             <button className={styles.primary} onClick={() => setIsEditMode(true)}>Edit</button>
           )}

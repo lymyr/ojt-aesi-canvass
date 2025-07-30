@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import styles from "./FormItem.module.css"; // shared styles
+import axios from "../axios";
 
-function FormUser({ onClose, onSave, userData = {}, isEditing = false }) {
+function FormUser({ onClose, userData = {}, isEditing = false, refreshUsers }) {
   const [formData, setFormData] = useState({
     username: userData.username || "",
     password: userData.password || "",
@@ -18,14 +19,23 @@ function FormUser({ onClose, onSave, userData = {}, isEditing = false }) {
   const validate = () => {
     const newErrors = {};
     if (!formData.username.trim()) newErrors.username = "Required";
-    if (!formData.password.trim()) newErrors.password = "Required";
+    if (!isEditing && !formData.password.trim()) newErrors.password = "Required"; // only require password on create
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return;
-    onSave(formData);
+
+    try {
+      await axios.post("/api/users", formData);
+      refreshUsers?.(); // call parent refresh if provided
+      onClose(); // close modal
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to save user";
+      alert(msg);
+      console.error("Save error:", err);
+    }
   };
 
   return (
@@ -51,7 +61,7 @@ function FormUser({ onClose, onSave, userData = {}, isEditing = false }) {
 
         <div className={styles.formGroup}>
           <label>
-            Password<span className={styles.required}>*</span>
+            Password{!isEditing && <span className={styles.required}>*</span>}
           </label>
           <input
             type="password"
@@ -64,14 +74,14 @@ function FormUser({ onClose, onSave, userData = {}, isEditing = false }) {
         </div>
 
         <div className={`${styles.formGroup} ${styles.checkboxGroup}`}>
-            <input
-              type="checkbox"
-              checked={formData.isApprover}
-              onChange={(e) => handleChange("isApprover", e.target.checked)}
-              disabled={!isEditMode}
-              id={styles.checkbox}
-            />
-            <label for={styles.checkbox}>Approver</label>
+          <input
+            type="checkbox"
+            checked={formData.isApprover}
+            onChange={(e) => handleChange("isApprover", e.target.checked)}
+            disabled={!isEditMode}
+            id="checkbox"
+          />
+          <label htmlFor="checkbox">Approver</label>
         </div>
 
         <div className={styles.actions}>

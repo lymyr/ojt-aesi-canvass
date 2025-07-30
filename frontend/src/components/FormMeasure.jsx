@@ -1,18 +1,9 @@
 import React, { useState } from "react";
 import styles from "./FormItem.module.css";
+import axios from "../axios";
 
-function FormMeasure({
-  isEditing = false,
-  onClose,
-  onSave, // Callback with the data
-  measureData = {}, // { unit, abbreviation }
-}) {
-  const [formData, setFormData] = useState({
-    unit: measureData.unit || "",
-    abbreviation: measureData.abbreviation || "",
-  });
-
-  const [isEditMode, setIsEditMode] = useState(!isEditing);
+function FormMeasure({ onClose, initialValue = "" }) {
+  const [formData, setFormData] = useState({ unit: initialValue, abbreviation: "" });
   const [errors, setErrors] = useState({});
 
   const handleChange = (field, value) => {
@@ -27,17 +18,21 @@ function FormMeasure({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return;
-    onSave(formData);
+    try {
+      await axios.post("/api/uoms", formData);
+      onClose(true); // tell parent to refresh list
+    } catch (err) {
+      console.error("Failed to save unit:", err);
+      alert("Failed to save unit of measure.");
+    }
   };
 
   return (
     <div className={styles.modal}>
       <div className={styles.formContainer}>
-        <h2 className={styles.header}>
-          {!isEditing ? "Add Unit" : isEditMode ? "Edit Unit" : "View Unit"}
-        </h2>
+        <h2 className={styles.header}>Add Unit</h2>
 
         <div className={styles.formGroup}>
           <label>
@@ -47,7 +42,6 @@ function FormMeasure({
             type="text"
             value={formData.unit}
             onChange={(e) => handleChange("unit", e.target.value)}
-            disabled={!isEditMode}
             placeholder="Enter unit of measure"
           />
           {errors.unit && <small style={{ color: "red" }}>{errors.unit}</small>}
@@ -61,24 +55,18 @@ function FormMeasure({
             type="text"
             value={formData.abbreviation}
             onChange={(e) => handleChange("abbreviation", e.target.value)}
-            disabled={!isEditMode}
             placeholder="Enter abbreviation"
           />
           {errors.abbreviation && <small style={{ color: "red" }}>{errors.abbreviation}</small>}
         </div>
 
         <div className={styles.actions}>
-          <button className={styles.secondary} onClick={onClose}>
-            {isEditing && isEditMode ? "Cancel" : "Close"}
+          <button className={styles.secondary} onClick={() => onClose(false)}>
+            Close
           </button>
-
-          {!isEditing ? (
-            <button className={styles.primary} onClick={handleSubmit}>Add</button>
-          ) : isEditMode ? (
-            <button className={styles.primary} onClick={handleSubmit}>Save</button>
-          ) : (
-            <button className={styles.primary} onClick={() => setIsEditMode(true)}>Edit</button>
-          )}
+          <button className={styles.primary} onClick={handleSubmit}>
+            Add
+          </button>
         </div>
       </div>
     </div>

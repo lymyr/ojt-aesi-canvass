@@ -4,29 +4,38 @@ import ListView from "../components/ListView";
 import Paginate from "../components/Paginate";
 import FormMeasure from "../components/FormMeasure";
 import s from "./listActions.module.css";
+import axios from "../axios";
 
 function ListMeasure({ setTitle }) {
+  const [showForm, setShowForm] = useState(false);
+  const [measures, setMeasures] = useState([]);
+
+  const fetchUoms = async () => {
+    try {
+      const response = await axios.get("/api/uoms");
+      const data = response.data;
+
+      const formatted = data.map((uom) => ({
+        ID: uom.id,
+        "Unit of Measure": uom.unit,
+        Abbreviation: uom.abbreviation,
+      }));
+
+      setMeasures(formatted);
+    } catch (error) {
+      console.error("Error fetching UoMs:", error);
+      alert("Failed to load units of measure.");
+    }
+  };
+
   useEffect(() => {
     setTitle("Units of Measure List");
+    fetchUoms();
   }, [setTitle]);
 
-  const [showForm, setShowForm] = useState(false);
-  const [measures, setMeasures] = useState([
-    { ID: 1, "Unit of Measure": "Kilogram", Abbreviation: "kg" },
-    { ID: 2, "Unit of Measure": "Liter", Abbreviation: "L" },
-    { ID: 3, "Unit of Measure": "Meter", Abbreviation: "m" },
-  ]);
-
-  const handleAdd = (newData) => {
-    setMeasures((prev) => [
-      ...prev,
-      {
-        ID: prev.length + 1,
-        "Unit of Measure": newData.unit,
-        Abbreviation: newData.abbreviation,
-      },
-    ]);
+  const handleFormClose = (shouldRefresh) => {
     setShowForm(false);
+    if (shouldRefresh) fetchUoms(); // Reload after adding
   };
 
   return (
@@ -43,12 +52,7 @@ function ListMeasure({ setTitle }) {
 
       <Paginate />
 
-      {showForm && (
-        <FormMeasure
-          onClose={() => setShowForm(false)}
-          onSave={handleAdd}
-        />
-      )}
+      {showForm && <FormMeasure onClose={handleFormClose} />}
     </div>
   );
 }

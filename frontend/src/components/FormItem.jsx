@@ -1,13 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "../axios";
 import styles from "./FormItem.module.css";
 import DropdownInput from "./DropdownInput";
+import FormMeasure from "./FormMeasure";
 
-function FormItem({
-  isEditing = false,
-  onClose,
-  onSave,  // Callback with the data
-  itemData = {}, // { description, unit, remarks }
-}) {
+function FormItem({ isEditing = false, onClose, itemData = {}, onSuccess }) {
   const [formData, setFormData] = useState({
     description: itemData.description || "",
     unit: itemData.unit || "",
@@ -16,9 +13,42 @@ function FormItem({
 
   const [isEditMode, setIsEditMode] = useState(!isEditing);
   const [errors, setErrors] = useState({});
+  const [uomSuggestions, setUomSuggestions] = useState([]);
+  const [uomList, setUomList] = useState([]);
+
+  const [showUomForm, setShowUomForm] = useState(false);
+  const [pendingUom, setPendingUom] = useState(""); // 👈 hold the input value
+
+  // Change fetchUOMs
+  const fetchUOMs = async () => {
+    try {
+      const res = await axios.get("/api/uoms");
+      setUomList(res.data);
+      setUomSuggestions(res.data.map((u) => u.unit));
+      return res.data; // ✅ return fresh data
+    } catch (err) {
+      console.error("Failed to load UOMs:", err);
+      return [];
+    }
+  };
+
+
+
+  useEffect(() => {
+    fetchUOMs();
+  }, []);
 
   const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: value };
+
+      if (field === "unit") {
+        const match = uomList.find((u) => u.unit.toLowerCase() === value.toLowerCase());
+        updated.unit_id = match ? match.id : null;
+      }
+
+      return updated;
+    });
   };
 
   const validate = () => {
@@ -29,10 +59,50 @@ function FormItem({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setErrors({});
+    if (showUomForm) {
+      alert("Please finish adding the Unit of Measure first.");
+      return;
+    }
+
     if (!validate()) return;
-    onSave(formData);
+    
+    try {
+      if (!formData.unit_id) {
+        alert("Please select a valid Unit of Measure.");
+        return;
+      }
+      const res = await axios.post("/api/items", formData);
+      if (onSuccess) onSuccess(res.data);
+      onClose();
+    } catch (err) {
+      console.error("Error saving item:", err);
+      alert("Failed to save item.");
+    }
   };
+
+
+  const handleMissingUOM = (val) => {
+    setPendingUom(val);        // store the input
+    setShowUomForm(true);      // show form popup
+  };
+
+  const handleUomFormClose = async (didAdd) => {
+    setShowUomForm(false);
+    if (didAdd) {
+      const updatedUOMs = await fetchUOMs(); // ✅ wait for new list
+      const match = updatedUOMs.find((u) => u.unit.toLowerCase() === pendingUom.toLowerCase());
+
+      setFormData((prev) => ({
+        ...prev,
+        unit: pendingUom,
+        unit_id: match ? match.id : null,
+      }));
+    }
+    setPendingUom("");
+  };
+
 
   return (
     <div className={styles.modal}>
@@ -52,7 +122,9 @@ function FormItem({
             disabled={!isEditMode}
             placeholder="Enter item"
           />
-          {errors.description && <small style={{ color: "red" }}>{errors.description}</small>}
+          {errors.description && (
+            <small style={{ color: "red" }}>{errors.description}</small>
+          )}
         </div>
 
         <div className={styles.formGroup}>
@@ -60,13 +132,18 @@ function FormItem({
             Unit of Measure<span className={styles.required}>*</span>
           </label>
           <DropdownInput
-            placeholder={"Enter unit of measure"}
-            suggestions={["kilogram", "liter", "pack"]}
+            id="uom-list"
+            placeholder="Enter unit of measure"
+            value={formData.unit}
+            onChange={(e) => handleChange("unit", e.target.value)}
+            suggestions={uomSuggestions}
             disabled={!isEditMode}
+            onMissingValue={handleMissingUOM}
           />
-          {errors.unit && <small style={{ color: "red" }}>{errors.unit}</small>}
+          {errors.unit && (
+            <small style={{ color: "red" }}>{errors.unit}</small>
+          )}
         </div>
-
 
         <div className={styles.formGroup}>
           <label>Remarks (optional)</label>
@@ -92,6 +169,14 @@ function FormItem({
           )}
         </div>
       </div>
+
+      {/* UOM Popup */}
+      {showUomForm && (
+        <FormMeasure
+          onClose={handleUomFormClose}
+          initialValue={pendingUom} // 👈 pass initial unit value
+        />
+      )}
     </div>
   );
 }

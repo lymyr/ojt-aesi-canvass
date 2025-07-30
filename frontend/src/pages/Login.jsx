@@ -7,12 +7,15 @@ function Login({ onLogin }) {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onLogin?.({ username, password });
 
-    // Temporary navigation to /canvass after login
-    navigate("/canvass");
+    try {
+      await onLogin?.({ username, password });
+      navigate("/canvass");
+    } catch (err) {
+      alert("Login failed.");
+    }
   };
 
   return (

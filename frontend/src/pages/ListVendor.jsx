@@ -2,20 +2,25 @@ import { useEffect, useState } from "react";
 import Search from "../components/Search";
 import ListView from "../components/ListView";
 import Paginate from "../components/Paginate";
-import FormVendor from "../components/FormVendor"; // ⬅️ Add this import
+import FormVendor from "../components/FormVendor";
 import s from "./listActions.module.css";
+import axios from "../axios"; // 👈 Import shared Axios instance
 
 function ListVendor({ setTitle }) {
   const [showPopup, setShowPopup] = useState(false);
+  const [vendors, setVendors] = useState([]); // Store vendors list
 
-  const handleAddVendor = (data) => {
-    console.log("Vendor saved:", data);
-    setShowPopup(false);
-    // Add logic to update your vendor list
-  };
-
+  // Set page title and fetch initial vendors list
   useEffect(() => {
     setTitle("Vendors List");
+
+    axios.get("/api/vendors")
+      .then((res) => {
+        setVendors(res.data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch vendors:", err);
+      });
   }, [setTitle]);
 
   return (
@@ -27,34 +32,25 @@ function ListVendor({ setTitle }) {
 
       <ListView
         columns={["ID", "Vendor Name", "Address", "TIN", "Remarks", "Active"]}
-        rows={[
-          {
-            ID: 1,
-            "Vendor Name": "ABC Suppliers Inc.",
-            Address: "123 Katinko St., QC",
-            TIN: "123-456-789",
-            Remarks: "Reliable",
-            Active: "Yes",
-          },
-          {
-            ID: 2,
-            "Vendor Name": "Medic Source",
-            Address: "456 Wellness Ave., Makati",
-            TIN: "987-654-321",
-            Remarks: "Slow delivery",
-            Active: "No",
-          },
-        ]}
+        rows={vendors.map((v) => ({
+          ID: v.id,
+          "Vendor Name": v.name,
+          Address: v.address,
+          TIN: v.tin,
+          Remarks: v.remarks || "",
+          Active: v.active ? "Yes" : "No",
+        }))}
       />
 
       <Paginate currentPage={1} totalPages={3} />
 
-      {/* ⬇️ Popup rendering here */}
       {showPopup && (
         <FormVendor
           isEditing={false}
-          onClose={() => setShowPopup(false)}
-          onSave={handleAddVendor}
+          onClose={() => {
+            setShowPopup(false);
+            // Optionally re-fetch vendors list here if needed
+          }}
         />
       )}
     </div>
