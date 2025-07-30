@@ -51,8 +51,21 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
   };
   const handleItemFormClose = async () => {
     setShowItemFormIndex(null);
-    await fetchItems(); // refresh suggestions only
-    setPendingItem(""); // clear previous search
+    const updatedItems = await fetchItems(); // fetch latest items from backend
+    setPendingItem(""); // clear input
+
+    // Try to find the saved item in the updated list
+    const matched = updatedItems.find(i => i.description === pendingItem);
+
+    // If found, update the row's UOM
+    if (matched && showItemFormIndex !== null) {
+      setItems(prev => {
+        const copy = [...prev];
+        copy[showItemFormIndex].description = matched.description;
+        copy[showItemFormIndex].uom = matched.uom?.abbreviation || "N/A";
+        return copy;
+      });
+    }
   };
 
   useEffect(() => {

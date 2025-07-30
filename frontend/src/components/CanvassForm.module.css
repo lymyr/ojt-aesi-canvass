@@ -18,11 +18,8 @@
     background-color: white;
 }
 
-.table tr:first-child {
-    font-size: 1rem;
-}
 .table tr:first-child td {
-    padding: 6px 12px;
+    padding: 2px 8px;
     letter-spacing: 1px;
 }
 .table tr:nth-child(2) td:nth-child(1),

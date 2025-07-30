@@ -127,9 +127,11 @@
   justify-self: end;
   align-items: center;
   margin-left: auto;
+  cursor: default;
 }
-.headerLinks > *:hover {
+.headerLinks > *:last-child:hover {
   color: rgb(81, 109, 62);
+  cursor: pointer;
 }
 .header img {
   height:16px;
