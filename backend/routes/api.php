@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\UomController;
+use App\Http\Controllers\CanvassSheetController;
 
 Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
 Route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout']);
@@ -28,4 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/uoms', [UomController::class, 'index']);
     Route::middleware('auth:sanctum')->post('/uoms', [UomController::class, 'store']);
+
+    Route::get('/canvass-sheets', [CanvassSheetController::class, 'index']);
+    Route::post('/canvass-sheets', [CanvassSheetController::class, 'store']);
 });

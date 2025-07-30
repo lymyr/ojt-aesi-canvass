@@ -228,6 +228,12 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
           type="number"
           min="0"
           step="1"
+          value={item.qty_needed || ""}
+          onChange={(e) => {
+            const updated = [...items];
+            updated[index].qty_needed = e.target.value;
+            setItems(updated);
+          }}
           disabled={isReadOnly || isRowDisabled}
         />
       </td>

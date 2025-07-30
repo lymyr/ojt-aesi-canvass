@@ -4,8 +4,6 @@ import s from "./CanvassButtons.module.css";
 import CanvassForm from "../components/CanvassForm";
 import Changelog from "../components/Changelog";
 import DocAttach from "../components/DocAttach";
-import FormItem from "../components/FormItem";
-import FormVendor from "../components/FormVendor"
 
 function EditCanvass({setTitle}) {
   useEffect(() => {

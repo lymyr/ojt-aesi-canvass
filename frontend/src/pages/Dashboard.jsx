@@ -1,35 +1,49 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
 import Search from "../components/Search";
 import ListView from "../components/ListView";
-import s from "./listActions.module.css";
 import Paginate from "../components/Paginate";
+import axios from "../axios";
+import s from "./listActions.module.css";
 
+function Dashboard({ setTitle }) {
+  const [rows, setRows] = useState([]);
 
-function Dashboard({setTitle}) {
-    useEffect(() => {
-        setTitle("Canvass List");
-    }, [setTitle]);
-    return (
-        <>
-            <div className={s.container}>
-                <div className={s.listActions}>
-                    <Search />
-                    <Link to="/canvass/new"><button>Add Canvass</button></Link>
-                </div>
-                <ListView
-                    columns={["ID", "Created By", "Create Date", "Status"]}
-                    rows={[
-                        { ID: 1, "Created By": "John", "Create Date": "2025-07-24", Status: "Pending" },
-                        { ID: 2, "Created By": "Jane", "Create Date": "2025-07-23", Status: "Pending" },
-                    ]}
-                />
+  const fetchCanvasses = async (page = 1) => {
+    try {
+      const res = await axios.get(`/api/canvass-sheets`);
+      const formattedRows = res.data.data.map((c) => ({
+        ID: c.id,
+        "Created By": c.creator?.username || "Unknown",
+        "Create Date": new Date(c.created_at).toLocaleDateString("en-CA"),
+        Status: c.status?.name || "Unknown",
+      }));
+      setRows(formattedRows);
+    } catch (error) {
+      console.error("Error loading canvass sheets", error);
+    }
+  };
 
-                <Paginate />
-            </div>
-        </>
-    )
+  useEffect(() => {
+    setTitle("Canvass List");
+    fetchCanvasses();
+  }, [setTitle]);
+
+  return (
+    <div className={s.container}>
+      <div className={s.listActions}>
+        <Search />
+        <Link to="/canvass/new"><button>Add Canvass</button></Link>
+      </div>
+
+      <ListView
+        columns={["ID", "Created By", "Create Date", "Status"]}
+        rows={rows}
+      />
+
+      <Paginate/>
+    </div>
+  );
 }
 
-export default Dashboard
+export default Dashboard;
