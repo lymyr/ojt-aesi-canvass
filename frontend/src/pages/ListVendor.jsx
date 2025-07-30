@@ -42,7 +42,7 @@ function ListVendor({ setTitle }) {
         }))}
       />
 
-      <Paginate currentPage={1} totalPages={3} />
+      <Paginate />
 
       {showPopup && (
         <FormVendor

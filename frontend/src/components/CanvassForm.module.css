@@ -161,7 +161,6 @@ table.table tbody tr:nth-child(3) td:nth-child(2) {
 .table tbody tr:nth-child(2) td:nth-child(n + 2) > div,
 .table tbody tr:nth-child(n+3) td:nth-child(1) > div {
     display:flex;
-    padding-right: 2px;
 }
 .table tbody tr:nth-child(n+3) td:nth-child(1) > div input {
     width:100%;
@@ -202,6 +201,7 @@ table.table tbody tr:nth-child(3) td:nth-child(2) {
     border-radius: 2px;
     cursor: pointer;
     font-weight: 600;
+    margin-right: 2px;
 }
 
 .table td:has(input) button:hover {

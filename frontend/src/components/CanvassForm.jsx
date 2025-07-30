@@ -219,7 +219,7 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
         />
       </td>
 
-      <td>{item.uom || "N/A"}</td>
+      <td>{item.uom || "" }</td>
 
       {vendors.map((_, j) => {
         const vendorData = item.vendors?.[j] || {};

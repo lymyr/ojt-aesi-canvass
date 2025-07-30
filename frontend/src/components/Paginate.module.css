@@ -3,9 +3,34 @@
     align-items: center;
     gap:12px;
     font-size: 0.75rem;
+    flex-wrap: wrap;
+    cursor: default;
 }
 
 .container button {
+    background-color: transparent;
+    color: rgb(59, 80, 61);
+    border: none;
+    padding: 2px 6px;
+    letter-spacing: 0.5px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.container button.active {
+    background-color: rgb(118, 146, 120);
+    color:rgb(227, 248, 229);
+    
+    font-weight: 600;
+}
+.container button:hover {
+    background-color: rgb(195, 221, 197);
+}
+.container button.active:hover {
+    background-color: rgb(118, 146, 120);
+
+}
+/* .container button:first-child,
+.container button:last-child {
     background-color: rgb(157, 182, 143);
     border: none;
     color: rgb(59, 80, 61);
@@ -14,13 +39,13 @@
     border-radius: 4px;
     font-weight: 600;
     cursor: pointer;
-}
-
-.container button:not(:disabled):hover {
+} */
+/* .container button:first-child:not(:disabled):hover
+.container button:last-child:not(:disabled):hover {
     background-color: rgb(97, 120, 83);
     color: rgb(213, 222, 214);
     font-weight: 900;
-}
+} */
 .container button:disabled {
     background-color: rgb(190, 196, 186);
     color: rgb(132, 141, 133);

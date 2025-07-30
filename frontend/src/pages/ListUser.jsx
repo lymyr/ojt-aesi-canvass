@@ -51,7 +51,7 @@ function ListUser({ setTitle }) {
         }))}
       />
 
-      <Paginate currentPage={1} totalPages={1} />
+      <Paginate />
 
      {showPopup && (
         <FormUser
