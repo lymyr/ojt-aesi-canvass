@@ -49,7 +49,7 @@ function ListItem({ setTitle }) {
         rows={items.map(item => ({
           ID: item.id,
           Description: item.description,
-          "Unit of Measure": item.unit,
+          "Unit of Measure": item.uom?.abbreviation || "N/A",
           Remarks: item.remarks || "",
         }))}
       />

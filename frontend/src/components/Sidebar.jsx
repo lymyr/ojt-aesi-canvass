@@ -27,7 +27,7 @@ function Sidebar({ user }) {
             ["/vendors", "vendor2", "Vendors"],
             ["/items", "item", "Items"],
             ["/uom", "uom", "Units of Measure"],
-            ["/canvass/edit", "uom", "tempedit"],
+            ["/canvass/edit", "vendor", "tempedit"],
             ...(user.role === "admin" ? [["/users", "user", "Users"]] : []),
           ].map(([route, icon, text]) => (
             <Link

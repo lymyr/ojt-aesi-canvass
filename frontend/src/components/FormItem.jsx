@@ -7,10 +7,11 @@ import FormMeasure from "./FormMeasure";
 function FormItem({ isEditing = false, onClose, itemData = {}, onSuccess }) {
   const [formData, setFormData] = useState({
     description: itemData.description || "",
-    unit: itemData.unit || "",
+    unit: itemData.unit_of_measure?.abbreviation || "",
+    unit_id: itemData.unit_id || null,
     remarks: itemData.remarks || "",
   });
-
+  
   const [isEditMode, setIsEditMode] = useState(!isEditing);
   const [errors, setErrors] = useState({});
   const [uomSuggestions, setUomSuggestions] = useState([]);

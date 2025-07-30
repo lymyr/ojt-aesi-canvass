@@ -1,27 +1,77 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DropdownInput from "./DropdownInput";
 import s from "./CanvassForm.module.css";
+import FormItem from "./FormItem";
+import FormVendor from "./FormVendor";
+import axios from "../axios";
 
 function CanvassForm({ isEditing = false, editClicked = true }) {
   const [items, setItems] = useState([
-    { id: Date.now(), description: "", typed: "", vendors: [] },
+    { id: Date.now(), description: "", uom: "", vendors: [] },
   ]);
+  const [allItemData, setAllItemData] = useState([]);
+
   const [vendors, setVendors] = useState([""]);
-  const [itemSuggestions, setItemSuggestions] = useState(["item 1", "item 2"]);
-  const [vendorSuggestions, setVendorSuggestions] = useState(["vendor 1", "vendor 2"]);
+  const [itemSuggestions, setItemSuggestions] = useState([]);
+  const [vendorSuggestions, setVendorSuggestions] = useState([]);
+
+  const [showVendorFormIndex, setShowVendorFormIndex] = useState(null);
+  const [pendingVendor, setPendingVendor] = useState("");
+
+  const [showItemFormIndex, setShowItemFormIndex] = useState(null);
+  const [pendingItem, setPendingItem] = useState("");
+
+  const handleMissingVendor = (index, val) => {
+    setPendingVendor(val);
+    setShowVendorFormIndex(index);
+  };
+
+  const fetchVendors = async () => {
+    const res = await axios.get("/api/vendors");
+    setVendorSuggestions(res.data.map(v => v.name));
+    return res.data;
+  };
+
+  const handleVendorFormClose = async () => {
+    setShowVendorFormIndex(null);
+    await fetchVendors(); // refresh vendor suggestions only
+    setPendingVendor("");
+  };
+
+  const handleMissingItem = (index, val) => {
+    setPendingItem(val);
+    setShowItemFormIndex(index);
+  };
+
+  const fetchItems = async () => {
+    const res = await axios.get("/api/items");
+    setAllItemData(res.data); // full item objects
+    setItemSuggestions(res.data.map(i => i.description)); // still needed for dropdown
+    return res.data;
+  };
+  const handleItemFormClose = async () => {
+    setShowItemFormIndex(null);
+    await fetchItems(); // refresh suggestions only
+    setPendingItem(""); // clear previous search
+  };
+
+  useEffect(() => {
+    fetchItems();
+    fetchVendors();
+  }, []);
 
   const isReadOnly = isEditing && !editClicked;
 
   const addItem = () => {
     setItems((prev) => [
       ...prev,
-      { id: Date.now() + Math.random(), description: "", typed: "", vendors: [] },
+      { id: Date.now() + Math.random(), description: "", vendors: [] },
     ]);
   };
 
   const removeItem = (id) => {
     if (items.length === 1) {
-      setItems([{ id: Date.now() + Math.random(), description: "", typed: "", vendors: [] }]);
+      setItems([{ id: Date.now() + Math.random(), description: "", vendors: [] }]);
     } else {
       setItems(items.filter((item) => item.id !== id));
     }
@@ -67,6 +117,7 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
   };
 
   return (
+    <>
     <div className={s.tableContainer}>
       <table className={s.table}>
         <tbody>
@@ -96,13 +147,8 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
                         addVendor();
                       }
                     }}
-                    onAdd={(newVendor) => {
-                      const updated = [...vendors];
-                      updated[i] = newVendor;
-                      setVendors(updated);
-                      if (!vendorSuggestions.includes(newVendor)) {
-                        setVendorSuggestions((prev) => [...prev, newVendor]);
-                      }
+                    onMissingValue={(newVendor) => {
+                      handleMissingVendor(i, newVendor);
                     }}
                     disabled={isReadOnly}
                   />
@@ -136,34 +182,27 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
         <div>
           <DropdownInput
             id={`items-${item.id}`}
-            value={item.typed || item.description}
+            value={item.description}
             suggestions={itemSuggestions}
             placeholder={"Add Item"}
             onChange={(e) => {
               const value = e.target.value;
+              const itemMatch = allItemData.find(i => i.description === value);
               const updated = [...items];
               updated[index].description = value;
-              updated[index].typed = value;
+              updated[index].uom = itemMatch?.uom?.abbreviation || "N/A"; // 👈 set abbreviation
               setItems(updated);
             }}
             onBlur={(e) => {
               const updated = [...items];
-              updated[index].typed = "";
               setItems(updated);
 
               if (e.target.value.trim() && index === items.length - 1) {
                 addItem();
               }
             }}
-            onAdd={(newItem) => {
-              if (!itemSuggestions.includes(newItem)) {
-                setItemSuggestions((prev) => [...prev, newItem]);
-              }
-
-              const updated = [...items];
-              updated[index].description = newItem;
-              updated[index].typed = "";
-              setItems(updated);
+            onMissingValue={(newItem) => {
+              handleMissingItem(index, newItem);
             }}
             disabled={isReadOnly}
           />
@@ -180,7 +219,7 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
         />
       </td>
 
-      <td>N/A</td>
+      <td>{item.uom || "N/A"}</td>
 
       {vendors.map((_, j) => {
         const vendorData = item.vendors?.[j] || {};
@@ -243,6 +282,21 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
         </tbody>
       </table>
     </div>
+
+    {showVendorFormIndex !== null && (
+      <FormVendor
+        vendorData={{ name: pendingVendor }}
+        onClose={handleVendorFormClose}
+      />
+    )}
+
+    {showItemFormIndex !== null && (
+      <FormItem
+        itemData={{ description: pendingItem }}
+        onClose={handleItemFormClose}
+      />
+    )}
+    </>
   );
 }
 

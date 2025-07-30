@@ -10,7 +10,8 @@ class ItemController extends Controller
 {
     public function index()
     {
-        return response()->json(Item::all());
+        $items = Item::with('uom:id,id,abbreviation')->get();
+        return response()->json($items);
     }
 
     public function store(Request $request)
@@ -26,10 +27,9 @@ class ItemController extends Controller
         $item = Item::create([
             'description' => $validated['description'],
             'unit_id' => $uom->id,
-            'unit' => $uom->unit, // denormalized value
             'remarks' => $validated['remarks'] ?? null,
         ]);
 
-        return response()->json($item, 201);
+        return response()->json($item->load('uom'), 201);
     }
 }

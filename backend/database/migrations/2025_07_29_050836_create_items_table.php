@@ -15,12 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('description')->collation('utf8mb4_unicode_ci')->unique();
             $table->foreignId('unit_id')->constrained('uoms')->onDelete('cascade'); // foreign key
-            $table->string('unit');
             $table->string('remarks')->nullable();
             $table->timestamps();
         });
     }
-
+    
     /**
      * Reverse the migrations.
      */

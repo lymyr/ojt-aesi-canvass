@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model
 {
-    protected $fillable = ['description', 'unit_id', 'unit', 'remarks'];
+    protected $fillable = ['description', 'unit_id', 'remarks'];
 
     public function uom()
     {
