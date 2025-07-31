@@ -32,4 +32,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/canvass-sheets', [CanvassSheetController::class, 'index']);
     Route::post('/canvass-sheets', [CanvassSheetController::class, 'store']);
+    Route::get('/canvass/last-quote', [CanvassSheetController::class, 'getLastQuote']);
 });

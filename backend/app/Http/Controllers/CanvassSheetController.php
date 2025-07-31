@@ -81,5 +81,25 @@ class CanvassSheetController extends Controller
             ], 500);
         }
     }
+    public function getLastQuote(Request $request)
+    {
+        $vendorName = $request->query('vendor');
+        $itemDescription = $request->query('item');
 
+        $vendor = Vendor::where('name', $vendorName)->first();
+        $item = Item::where('description', $itemDescription)->first();
+
+        if (!$vendor || !$item) {
+            return response()->json(['price' => null]);
+        }
+
+        $quote = DB::table('canvass_item_vendor as civ')
+            ->join('canvass_items as ci', 'ci.id', '=', 'civ.canvass_item_id')
+            ->where('ci.item_id', $item->id)
+            ->where('civ.vendor_id', $vendor->id)
+            ->orderByDesc('civ.created_at')
+            ->value('civ.quote');
+
+        return response()->json(['price' => $quote]);
+    }
 }
