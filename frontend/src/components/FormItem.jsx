@@ -121,7 +121,7 @@ function FormItem({ isEditing = false, onClose, itemData = {}, onSuccess }) {
             value={formData.description}
             onChange={(e) => handleChange("description", e.target.value)}
             disabled={!isEditMode}
-            placeholder="Enter item"
+            placeholder="e.g. Menthol Crystals, Amber Bottle"
           />
           {errors.description && (
             <small style={{ color: "red" }}>{errors.description}</small>
@@ -134,7 +134,7 @@ function FormItem({ isEditing = false, onClose, itemData = {}, onSuccess }) {
           </label>
           <DropdownInput
             id="uom-list"
-            placeholder="Enter unit of measure"
+            placeholder="e.g. piece, bottle, kilogram"
             value={formData.unit}
             onChange={(e) => handleChange("unit", e.target.value)}
             suggestions={uomSuggestions}
@@ -152,7 +152,7 @@ function FormItem({ isEditing = false, onClose, itemData = {}, onSuccess }) {
             value={formData.remarks}
             onChange={(e) => handleChange("remarks", e.target.value)}
             disabled={!isEditMode}
-            placeholder="Enter remarks"
+            placeholder="e.g. For promo use only, needed for trial production"
           />
         </div>
 

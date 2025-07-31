@@ -42,7 +42,7 @@ function FormMeasure({ onClose, initialValue = "" }) {
             type="text"
             value={formData.unit}
             onChange={(e) => handleChange("unit", e.target.value)}
-            placeholder="Enter unit of measure"
+            placeholder="e.g. piece, bottle, kilogram"
           />
           {errors.unit && <small style={{ color: "red" }}>{errors.unit}</small>}
         </div>
@@ -55,7 +55,7 @@ function FormMeasure({ onClose, initialValue = "" }) {
             type="text"
             value={formData.abbreviation}
             onChange={(e) => handleChange("abbreviation", e.target.value)}
-            placeholder="Enter abbreviation"
+            placeholder="e.g. pc, btl, kg"
           />
           {errors.abbreviation && <small style={{ color: "red" }}>{errors.abbreviation}</small>}
         </div>

@@ -42,9 +42,9 @@ function ListUser({ setTitle }) {
       </div>
 
       <ListView
-        columns={["User ID", "Username", "Password", "Role"]}
+        columns={["ID", "Username", "Password", "Role"]}
         rows={users.map(user => ({
-          "User ID": user.id,
+          "ID": user.id,
           Username: user.username,
           Password: "••••••••",
           Role: user.role.charAt(0).toUpperCase() + user.role.slice(1),

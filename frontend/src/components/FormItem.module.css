@@ -13,6 +13,7 @@
 
 .formContainer {
   background: white;
+  color: rgb(68, 85, 68);
   padding: 20px;
   border-radius: 8px;
   width: 400px;
@@ -21,10 +22,16 @@
 }
 
 .header {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
+  letter-spacing: 1px;
   font-weight: bold;
   margin-bottom: 1rem;
-  text-align: center;
+  text-align: left;
+  margin: -20px -20px 20px -20px;
+  padding: 12px 20px;
+  border-radius: 8px 8px 0px 0px;
+  background-color: rgb(118, 146, 120);
+  color: rgb(227, 248, 229);
 }
 
 
@@ -45,7 +52,10 @@
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-
+.formGroup input:focus,
+.formGroup textarea:focus {
+  box-shadow: 2px 2px 6px rgb(183, 183, 183);
+}
 .actions {
   display: flex;
   justify-content: flex-end;
@@ -60,13 +70,13 @@
 }
 
 .modal button.primary {
-  background-color: rgb(58, 123, 255);
-  border: 1px solid rgb(58, 123, 255);;
-  color: white;
+  border: 1px solid rgb(118, 146, 120);
+  background-color: rgb(118, 146, 120);
+  color: rgb(227, 248, 229);
 }
 .modal button.primary:hover {
-  background-color: rgb(24, 101, 255);
-  border: 1px solid rgb(24, 101, 255);
+  background-color: rgb(159, 193, 162);
+  border: 1px solid rgb(159, 193, 162);
 }
 
 .modal button.secondary {
@@ -90,7 +100,11 @@
   gap: 0.5rem;
   width: fit-content;
 }
-
+.checkboxGroup input {
+  position: relative;
+  top: -2px;
+  accent-color: rgb(118, 146, 120);
+}
 #checkbox {
   position:relative;
   bottom:2px;

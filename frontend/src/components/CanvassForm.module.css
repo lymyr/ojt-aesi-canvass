@@ -1,3 +1,11 @@
+/* .masterContainer {
+    display: flex;
+}
+.masterContainer > .addBtn {
+    background-color: transparent;
+    margin:6px;
+    border: 1px solid black;
+} */
 .tableContainer {
     overflow: hidden;
     overflow-x: scroll;

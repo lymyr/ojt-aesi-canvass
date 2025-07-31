@@ -183,173 +183,168 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true }, ref) 
 
   return (
     <>
-      <div className={s.tableContainer}>
-        <table className={s.table}>
-          <tbody>
-            <tr>
-              <td colSpan={3 + vendors.length * 5}>
-                AS OF: {new Date().toLocaleDateString("en-CA")}
-              </td>
-            </tr>
-
-            <tr>
-              <td colSpan={3}>Items</td>
-              {vendors.map((vendor, i) => (
-                <td colSpan={5} key={i}>
-                  <div>
-                    <DropdownInput
-                      id={`vendor-${i}`}
-                      value={vendor}
-                      suggestions={vendorSuggestions}
-                      placeholder={"Add Vendor"}
-                      onChange={(e) => {
-                        const updated = [...vendors];
-                        updated[i] = e.target.value;
-                        setVendors(updated);
-                      }}
-                      onBlur={(e) => {
-                        if (e.target.value.trim() && i === vendors.length - 1) {
-                          addVendor();
-                        }
-                      }}
-                      onMissingValue={(newVendor) => {
-                        handleMissingVendor(i, newVendor);
-                      }}
-                      disabled={isReadOnly}
-                    />
-                    {!isReadOnly && <button onClick={() => removeVendor(i)}>X</button>}
-                  </div>
+      <div className={s.masterContainer}>
+        <div className={s.tableContainer}>
+          <table className={s.table}>
+            <tbody>
+              <tr>
+                <td colSpan={3 + vendors.length * 5}>
+                  AS OF: {new Date().toLocaleDateString("en-CA")}
                 </td>
-              ))}
-            </tr>
-
-            <tr>
-              <td>Description</td>
-              <td>Needed Amount</td>
-              <td>UoM</td>
-              {vendors.map((_, i) => (
-                <React.Fragment key={i}>
-                  <td>Unit Price</td>
-                  <td>Stock</td>
-                  <td>Order Amount</td>
-                  <td>Remarks</td>
-                  <td>Total</td>
-                </React.Fragment>
-              ))}
-            </tr>
-
-            {items.map((item, index) => {
-              const isRowDisabled = !item.description.trim();
-
-              return (
-                <tr key={item.id}>
-                  <td>
+              </tr>
+              <tr>
+                <td colSpan={3}>Items</td>
+                {vendors.map((vendor, i) => (
+                  <td colSpan={5} key={i}>
                     <div>
                       <DropdownInput
-                        id={`items-${item.id}`}
-                        value={item.description}
-                        suggestions={itemSuggestions}
-                        placeholder={"Add Item"}
+                        id={`vendor-${i}`}
+                        value={vendor}
+                        suggestions={vendorSuggestions}
+                        placeholder={"Add Vendor"}
                         onChange={(e) => {
-                          const value = e.target.value;
-                          const itemMatch = allItemData.find(i => i.description === value);
-                          const updated = [...items];
-                          updated[index].description = value;
-                          updated[index].uom = itemMatch?.uom?.abbreviation || "N/A";
-                          setItems(updated);
+                          const updated = [...vendors];
+                          updated[i] = e.target.value;
+                          setVendors(updated);
                         }}
                         onBlur={(e) => {
-                          const updated = [...items];
-                          setItems(updated);
-
-                          if (e.target.value.trim() && index === items.length - 1) {
-                            addItem();
+                          if (e.target.value.trim() && i === vendors.length - 1) {
+                            addVendor();
                           }
                         }}
-                        onMissingValue={(newItem) => {
-                          handleMissingItem(index, newItem);
+                        onMissingValue={(newVendor) => {
+                          handleMissingVendor(i, newVendor);
                         }}
                         disabled={isReadOnly}
                       />
-                      {!isReadOnly && <button onClick={() => removeItem(item.id)}>X</button>}
+                      {!isReadOnly && <button onClick={() => removeVendor(i)}>X</button>}
                     </div>
                   </td>
-
-                  <td>
-                    <input
-                      type="number"
-                      min="0"
-                      step="1"
-                      value={item.qty_needed || ""}
-                      onChange={(e) => {
-                        const updated = [...items];
-                        updated[index].qty_needed = e.target.value;
-                        setItems(updated);
-                      }}
-                      disabled={isReadOnly || isRowDisabled}
-                    />
-                  </td>
-
-                  <td>{item.uom || ""}</td>
-
-                  {vendors.map((_, j) => {
-                    const vendorData = item.vendors?.[j] || {};
-                    const isVendorEmpty = !vendors[j]?.trim();
-                    const disableInput = isReadOnly || isRowDisabled || isVendorEmpty;
-
-                    return (
-                      <React.Fragment key={j}>
-                        <td>
-                          <input
-                            type="number"
-                            min="0"
-                            value={vendorData.price || ""}
-                            onChange={(e) => updateVendorField(index, j, "price", e.target.value)}
-                            disabled={disableInput}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            min="0"
-                            step="1"
-                            value={vendorData.stock || ""}
-                            onChange={(e) => updateVendorField(index, j, "stock", e.target.value)}
-                            disabled={disableInput}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            min="0"
-                            step="1"
-                            value={vendorData.amount || ""}
-                            onChange={(e) => updateVendorField(index, j, "amount", e.target.value)}
-                            disabled={disableInput}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="text"
-                            value={vendorData.remarks || ""}
-                            onChange={(e) => updateVendorField(index, j, "remarks", e.target.value)}
-                            disabled={disableInput}
-                          />
-                        </td>
-                        <td>
-                          {Number(vendorData.total || 0).toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </td>
-                      </React.Fragment>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                ))}
+              </tr>
+              <tr>
+                <td>Description</td>
+                <td>Needed Amount</td>
+                <td>UoM</td>
+                {vendors.map((_, i) => (
+                  <React.Fragment key={i}>
+                    <td>Unit Price</td>
+                    <td>Stock</td>
+                    <td>Order Amount</td>
+                    <td>Remarks</td>
+                    <td>Total</td>
+                  </React.Fragment>
+                ))}
+              </tr>
+              {items.map((item, index) => {
+                const isRowDisabled = !item.description.trim();
+                return (
+                  <tr key={item.id}>
+                    <td>
+                      <div>
+                        <DropdownInput
+                          id={`items-${item.id}`}
+                          value={item.description}
+                          suggestions={itemSuggestions}
+                          placeholder={"Add Item"}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            const itemMatch = allItemData.find(i => i.description === value);
+                            const updated = [...items];
+                            updated[index].description = value;
+                            updated[index].uom = itemMatch?.uom?.abbreviation || "N/A";
+                            setItems(updated);
+                          }}
+                          onBlur={(e) => {
+                            const updated = [...items];
+                            setItems(updated);
+                            if (e.target.value.trim() && index === items.length - 1) {
+                              addItem();
+                            }
+                          }}
+                          onMissingValue={(newItem) => {
+                            handleMissingItem(index, newItem);
+                          }}
+                          disabled={isReadOnly}
+                        />
+                        {!isReadOnly && <button onClick={() => removeItem(item.id)}>X</button>}
+                      </div>
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={item.qty_needed || ""}
+                        onChange={(e) => {
+                          const updated = [...items];
+                          updated[index].qty_needed = e.target.value;
+                          setItems(updated);
+                        }}
+                        disabled={isReadOnly || isRowDisabled}
+                      />
+                    </td>
+                    <td>{item.uom || ""}</td>
+                    {vendors.map((_, j) => {
+                      const vendorData = item.vendors?.[j] || {};
+                      const isVendorEmpty = !vendors[j]?.trim();
+                      const disableInput = isReadOnly || isRowDisabled || isVendorEmpty;
+                      return (
+                        <React.Fragment key={j}>
+                          <td>
+                            <input
+                              type="number"
+                              min="0"
+                              value={vendorData.price || ""}
+                              onChange={(e) => updateVendorField(index, j, "price", e.target.value)}
+                              disabled={disableInput}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={vendorData.stock || ""}
+                              onChange={(e) => updateVendorField(index, j, "stock", e.target.value)}
+                              disabled={disableInput}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={vendorData.amount || ""}
+                              onChange={(e) => updateVendorField(index, j, "amount", e.target.value)}
+                              disabled={disableInput}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              value={vendorData.remarks || ""}
+                              onChange={(e) => updateVendorField(index, j, "remarks", e.target.value)}
+                              disabled={disableInput}
+                            />
+                          </td>
+                          <td>
+                            {Number(vendorData.total || 0).toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </td>
+                        </React.Fragment>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          {/* <button className={s.addBtn}>+</button> */}
+        </div>
+        {/* <button className={s.addBtn}>+</button> */}
       </div>
 
       {showVendorFormIndex !== null && (

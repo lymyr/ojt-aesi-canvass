@@ -8,12 +8,10 @@ import axios from "../axios"; // 👈 Import shared Axios instance
 
 function ListVendor({ setTitle }) {
   const [showPopup, setShowPopup] = useState(false);
-  const [vendors, setVendors] = useState([]); // Store vendors list
+  const [vendors, setVendors] = useState([]);
 
-  // Set page title and fetch initial vendors list
-  useEffect(() => {
-    setTitle("Vendors List");
-
+  // 👉 Move fetch logic into its own function
+  const fetchVendors = () => {
     axios.get("/api/vendors")
       .then((res) => {
         setVendors(res.data);
@@ -21,6 +19,11 @@ function ListVendor({ setTitle }) {
       .catch((err) => {
         console.error("Failed to fetch vendors:", err);
       });
+  };
+
+  useEffect(() => {
+    setTitle("Vendors List");
+    fetchVendors(); // fetch on mount
   }, [setTitle]);
 
   return (
@@ -49,7 +52,7 @@ function ListVendor({ setTitle }) {
           isEditing={false}
           onClose={() => {
             setShowPopup(false);
-            // Optionally re-fetch vendors list here if needed
+            fetchVendors(); // ✅ Re-fetch when closing the modal
           }}
         />
       )}

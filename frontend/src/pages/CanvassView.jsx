@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Tabs from "../components/Tabs";
 import CanvassForm from "../components/CanvassForm";
@@ -19,6 +20,7 @@ function CanvassView({
   const isCreateMode = mode === "create";
 
   const formRef = useRef();
+  const navigate = useNavigate();
 
   // Allow edit mode if requestor and status is pending
   const canEdit = userRole === "maker" && status === "pending";
@@ -42,6 +44,8 @@ function CanvassView({
     try {
       await axios.post("/api/canvass-sheets", formData);
       alert("Canvass sheet saved successfully!");
+      navigate("/"); // or another dummy route
+      setTimeout(() => navigate("/canvass"), 10); // trigger reroute
     } catch (error) {
       console.error("Save failed:", error);
       alert("Error saving canvass sheet.");

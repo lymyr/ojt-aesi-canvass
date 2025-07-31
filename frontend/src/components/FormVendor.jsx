@@ -61,7 +61,7 @@ function FormVendor({ isEditing = false, onClose, vendorData = {} }) {
             value={formData.name}
             onChange={(e) => handleChange("name", e.target.value)}
             disabled={!isEditMode}
-            placeholder="Enter vendor name"
+            placeholder="e.g. GreenLeaf Herbals"
           />
           {errors.name && <small style={{ color: "red" }}>{errors.name}</small>}
         </div>
@@ -75,7 +75,7 @@ function FormVendor({ isEditing = false, onClose, vendorData = {} }) {
             value={formData.address}
             onChange={(e) => handleChange("address", e.target.value)}
             disabled={!isEditMode}
-            placeholder="Enter address"
+            placeholder="e.g. 45 Herbal Rd., San Juan, Metro Manila"
           />
           {errors.address && <small style={{ color: "red" }}>{errors.address}</small>}
         </div>
@@ -89,7 +89,7 @@ function FormVendor({ isEditing = false, onClose, vendorData = {} }) {
             value={formData.tin}
             onChange={(e) => handleChange("tin", e.target.value)}
             disabled={!isEditMode}
-            placeholder="Enter TIN"
+            placeholder="e.g. 123-456-789"
           />
           {errors.tin && <small style={{ color: "red" }}>{errors.tin}</small>}
         </div>
@@ -100,7 +100,7 @@ function FormVendor({ isEditing = false, onClose, vendorData = {} }) {
             value={formData.remarks}
             onChange={(e) => handleChange("remarks", e.target.value)}
             disabled={!isEditMode}
-            placeholder="Enter remarks"
+            placeholder="e.g. Fast delivery, bulk discount, limited stock"
           />
         </div>
 
