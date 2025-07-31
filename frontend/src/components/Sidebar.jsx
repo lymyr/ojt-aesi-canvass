@@ -1,9 +1,20 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom"; // ✅ import useLocation
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 function Sidebar({ user }) {
   const [collapsed, setCollapsed] = useState(false);
-  const location = useLocation(); // ✅ get current path
+  const location = useLocation();
+
+  useEffect(() => {
+    const shouldAutoCollapse =
+      location.pathname === "/canvass/new" ||
+      location.pathname === "/canvass/edit";
+    console.log(shouldAutoCollapse);
+    if (shouldAutoCollapse) {
+      setCollapsed(true);
+    }
+  }, [location.pathname]);
+
 
   const isActive = (route) => {
     return location.pathname === route || location.pathname.startsWith(route + "/");
