@@ -12,8 +12,10 @@ import ListItem from './pages/ListItem';
 import ListUser from './pages/ListUser';
 import ListVendor from './pages/ListVendor';
 import Login from './pages/Login';
+import CanvassView from './pages/CanvassView';
 
 import axios from "./axios";
+
 
 // Layout for authenticated pages
 function MainLayout({ setTitle, title, onLogout, user }) {
@@ -26,8 +28,8 @@ function MainLayout({ setTitle, title, onLogout, user }) {
         <div className="inner-content">
           <Routes>
             <Route path="/canvass" element={<Dashboard setTitle={setTitle} />} />
-            <Route path="/canvass/new" element={<NewCanvass setTitle={setTitle} />} />
-            <Route path="/canvass/edit" element={<EditCanvass setTitle={setTitle} />} />
+            <Route path="/canvass/new" element={<CanvassView setTitle={setTitle} />} />
+            <Route path="/canvass/edit" element={<CanvassView setTitle={setTitle} mode="edit" />} />
             <Route path="/items" element={<ListItem setTitle={setTitle} />} />
             <Route path="/vendors" element={<ListVendor setTitle={setTitle} />} />
             <Route path="/uom" element={<ListMeasure setTitle={setTitle} />} />

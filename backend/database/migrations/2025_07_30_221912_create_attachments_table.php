@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('vendor_quote', function (Blueprint $table) {
+        Schema::create('attachments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('vendor_id')->constrained()->onDelete('cascade');
-            $table->foreignId('item_id')->constrained()->onDelete('cascade');
-            $table->decimal('quote', 12, 2);
+            $table->foreignId('ref_id')->constrained('canvass_sheets')->onDelete('cascade');
+            $table->string('file_name');
+            $table->string('path');
+            $table->string('added_by');
             $table->timestamps();
         });
+
     }
 
     /**
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('vendor_quote');
+        Schema::dropIfExists('attachments');
     }
 };

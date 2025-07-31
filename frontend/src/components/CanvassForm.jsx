@@ -1,17 +1,43 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import DropdownInput from "./DropdownInput";
 import s from "./CanvassForm.module.css";
 import FormItem from "./FormItem";
 import FormVendor from "./FormVendor";
 import axios from "../axios";
 
-function CanvassForm({ isEditing = false, editClicked = true }) {
+const CanvassForm = forwardRef(({ isEditing = false, editClicked = true }, ref) => {
   const [items, setItems] = useState([
-    { id: Date.now(), description: "", uom: "", vendors: [] },
+    {
+      id: Date.now(),
+      description: "",
+      uom: "",
+      qty_needed: "",
+      vendors: [
+        { price: "", stock: "", amount: "", remarks: "" },
+        { price: "", stock: "", amount: "", remarks: "" },
+      ],
+    },
   ]);
+
+  useImperativeHandle(ref, () => ({
+    getFormData: () => ({
+      items: items.map((item) => ({
+        description: item.description.trim(),
+        qty_needed: parseInt(item.qty_needed, 10) || 0,
+        vendors: item.vendors.map((v, i) => ({
+          vendor_name: vendors[i],
+          price: v.price,
+          stock: v.stock,
+          amount: v.amount,
+          remarks: v.remarks,
+        })),
+      })),
+    }),
+  }));
+
   const [allItemData, setAllItemData] = useState([]);
 
-  const [vendors, setVendors] = useState([""]);
+  const [vendors, setVendors] = useState(["", ""]);
   const [itemSuggestions, setItemSuggestions] = useState([]);
   const [vendorSuggestions, setVendorSuggestions] = useState([]);
 
@@ -317,6 +343,6 @@ function CanvassForm({ isEditing = false, editClicked = true }) {
     )}
     </>
   );
-}
+});
 
 export default CanvassForm;

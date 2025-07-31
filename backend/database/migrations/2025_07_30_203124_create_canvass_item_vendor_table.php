@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('canvass_item_vendor', function (Blueprint $table) {
             $table->id();
             $table->foreignId('canvass_item_id')->constrained()->onDelete('cascade');
-            $table->foreignId('quote_id')->nullable()->constrained('vendor_quote')->onDelete('set null');
+            $table->foreignId('vendor_id')->constrained()->onDelete('restrict');
+            $table->decimal('quote', 10, 2);
             $table->integer('stock');
             $table->integer('qty_order');
             $table->text('remarks')->nullable();

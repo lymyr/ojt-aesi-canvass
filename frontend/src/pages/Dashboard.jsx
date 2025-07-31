@@ -12,15 +12,17 @@ function Dashboard({ setTitle }) {
   const fetchCanvasses = async (page = 1) => {
     try {
       const res = await axios.get(`/api/canvass-sheets`);
-      const formattedRows = res.data.data.map((c) => ({
+      const canvassData = res.data?.data ?? []; // default to [] if undefined
+      const formattedRows = canvassData.map((c) => ({
         ID: c.id,
-        "Created By": c.creator?.username || "Unknown",
-        "Create Date": new Date(c.created_at).toLocaleDateString("en-CA"),
-        Status: c.status?.name || "Unknown",
+        "Created By": c.created_by || "Unknown",
+        "Create Date": new Date(c.date_created).toLocaleDateString("en-CA"),
+        Status: c.status || "Unknown",
       }));
       setRows(formattedRows);
     } catch (error) {
       console.error("Error loading canvass sheets", error);
+      setRows([]); // fallback
     }
   };
 

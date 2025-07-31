@@ -16,4 +16,13 @@ class CanvassItem extends Model
     {
         return $this->hasMany(CanvassItemVendor::class);
     }
+    public function canvassSheet()
+    {
+        return $this->belongsTo(CanvassSheet::class, 'canvass_id');
+    }
+
+    public function item()
+    {
+        return $this->belongsTo(Item::class, 'item_id');
+    }
 }

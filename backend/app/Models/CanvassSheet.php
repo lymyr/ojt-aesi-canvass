@@ -22,4 +22,8 @@ class CanvassSheet extends Model
     {
         return $this->hasMany(CanvassItem::class, 'canvass_id');
     }
+    // public function vendors()
+    // {
+    //     return $this->hasMany(CanvassItemVendor::class, 'canvass_item_id');
+    // }
 }

@@ -6,16 +6,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class CanvassItemVendor extends Model
 {
+    protected $table = 'canvass_item_vendor';
+
     protected $fillable = [
         'canvass_item_id',
-        'quote_id',
+        'vendor_id',
+        'quote',
         'stock',
         'qty_order',
         'remarks'
     ];
     
-    public function quote()
+    public function canvassItem()
     {
-        return $this->belongsTo(VendorQuote::class, 'quote_id');
+        return $this->belongsTo(CanvassItem::class);
+    }
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
     }
 }

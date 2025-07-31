@@ -28,7 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/items', [ItemController::class, 'store']);
 
     Route::get('/uoms', [UomController::class, 'index']);
-    Route::middleware('auth:sanctum')->post('/uoms', [UomController::class, 'store']);
+    Route::post('/uoms', [UomController::class, 'store']);
 
     Route::get('/canvass-sheets', [CanvassSheetController::class, 'index']);
     Route::post('/canvass-sheets', [CanvassSheetController::class, 'store']);
