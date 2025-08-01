@@ -77,8 +77,6 @@ class CanvassSheetController extends Controller
         }
         $validated = $validator->validated();
 
-
-        // for checking if item or vendor is in the database
         try {
             $resolvedItems = [];
 
@@ -102,7 +100,6 @@ class CanvassSheetController extends Controller
                 ];
             }
 
-            // ✅ Begin actual insert after full validation
             DB::beginTransaction();
 
             $canvass = CanvassSheet::create([
