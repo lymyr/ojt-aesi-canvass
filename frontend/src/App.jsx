@@ -98,16 +98,6 @@ function App() {
     <Router>
       <Routes>
         <Route
-          path="/"
-          element={
-            user ? (
-              <MainLayout user={user} setTitle={setTitle} title={title} onLogout={handleLogout} />
-            ) : (
-              <Login onLogin={handleLogin} />
-            )
-          }
-        />
-        <Route
           path="/*"
           element={
             user ? (

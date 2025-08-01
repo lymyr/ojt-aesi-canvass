@@ -50,7 +50,7 @@ class CanvassSheetController extends Controller
             ]);
 
             foreach ($validated['items'] as $item) {
-                $itemModel = Item::where('description', $item['description'])->firstOrFail();
+                $itemModel = Item::where('description', $item['description'])->firstOrFail(); // find id instead of description
 
                 $canvassItem = $canvass->items()->create([
                     'item_id' => $itemModel->id,

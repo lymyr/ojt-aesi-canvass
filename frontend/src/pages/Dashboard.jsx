@@ -7,6 +7,7 @@ import axios from "../axios";
 import s from "./listActions.module.css";
 
 function Dashboard({ setTitle }) {
+  console.log("mounted");
   const [rows, setRows] = useState([]);
 
   const fetchCanvasses = async (page = 1) => {
