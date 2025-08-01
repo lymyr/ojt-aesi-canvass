@@ -20,15 +20,17 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true }, ref) 
 
   useImperativeHandle(ref, () => ({
     getFormData: () => ({
-      items: items.map((item) => ({
+      items: items
+      .filter(item => item.description.trim() !== "")
+      .map((item) => ({
         description: item.description.trim(),
         qty_needed: parseInt(item.qty_needed, 10) || 0,
         vendors: item.vendors.map((v, i) => ({
           vendor_name: vendors[i],
-          price: v.price,
-          stock: v.stock,
-          amount: v.amount,
-          remarks: v.remarks,
+          price: Math.round(parseFloat(v.price) * 100) / 100 || 0.00,
+          stock: parseInt(v.stock, 10) || 0,
+          amount: parseInt(v.amount, 10) || 0,
+          remarks: v.remarks?.trim() === "" ? null : v.remarks,
         })),
       })),
     }),

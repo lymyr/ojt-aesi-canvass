@@ -39,18 +39,26 @@ function CanvassView({
   const handleSave = async () => {
     if (!formRef.current) return;
 
-    const formData = formRef.current.getFormData(); // 👈 Custom method from CanvassForm
-    console.log("📤 Form Data being sent:", formData);
+    const formData = formRef.current.getFormData(); // Custom method from CanvassForm
     try {
-      await axios.post("/api/canvass-sheets", formData);
-      alert("Canvass sheet saved successfully!");
-      navigate("/"); // or another dummy route
-      setTimeout(() => navigate("/canvass"), 10); // trigger reroute
+        const response = await axios.post("/api/canvass-sheets", formData);
+        alert(response.data.message); // ✅ get success message from backend
+        navigate("/");
+        setTimeout(() => navigate("/canvass"), 10);
     } catch (error) {
-      console.error("Save failed:", error);
-      alert("Error saving canvass sheet.");
+        console.error("Save failed:", error);
+        const res = error.response?.data;
+        if (error.response?.status === 422 && res?.errors) {
+            const messages = Object.values(res.errors).flat().map(msg => `- ${msg}`).join('\n');
+            alert(`Canvass sheet error\n${messages}`);
+        } else {
+            const message = `${"Error saving canvass sheet."}${res?.error ? `\n${res.error}` : ""}`;
+            alert(message);
+        }
+
     }
   };
+
 
   const handleApprove = () => {
     // approve logic here

@@ -6,6 +6,11 @@ use Illuminate\Support\Facades\DB;
 use App\Models\CanvassSheet;
 use App\Models\Item;
 use App\Models\Vendor;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 
 class CanvassSheetController extends Controller
@@ -31,56 +36,123 @@ class CanvassSheetController extends Controller
  
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $username = $request->user()->username;
+        $validator = Validator::make($request->all(), [
             'items' => 'required|array|min:1',
-            'items.*.description' => 'required|string',
+            'items.*.description' => 'required|string|exists:items,description',
             'items.*.qty_needed' => 'required|integer|min:1',
-            'items.*.vendors' => 'array',
+            'items.*.vendors' => 'required|array|min:1',
+            'items.*.vendors.*.stock' => 'required|integer|min:0',
+            'items.*.vendors.*.price' => 'required|numeric|min:0',
+            'items.*.vendors.*.vendor_name' => 'required|string|exists:vendors,name',
+            'items.*.vendors.*.amount' => 'required|integer|min:0',
+            'items.*.vendors.*.remarks' => 'nullable|string',
+        ], [
+            'items.required' => 'You must add at least one item.',
+            'items.*.description.required' => 'Each item must have a description.',
+            'items.*.description.exists' => 'The item does not exist',
+            'items.*.qty_needed.required' => 'Quantity needed is required for each item.',
+            'items.*.vendors.required' => 'Each item must have at least one vendor.',
+            'items.*.vendors.*.stock.required' => 'Stock is required for each vendor.',
+            'items.*.vendors.*.price.required' => 'Price is required for each vendor.',
+            'items.*.vendors.*.vendor_name.required' => 'Vendor name is required.',
+            'items.*.vendors.*.vendor_name.exists' => 'The vendor does not exist.',
+            'items.*.vendors.*.amount.required' => 'Quantity to order is required.',
         ]);
+        // for checking if vendor is active
+        $validator->after(function ($validator) use ($request) {
+            foreach ($request->items as $i => $item) {
+                foreach ($item['vendors'] as $j => $vendor) {
+                    $vendorRecord = \App\Models\Vendor::where('name', $vendor['vendor_name'])->first();
+                    if ($vendorRecord && !$vendorRecord->active) {
+                        $validator->errors()->add("items.$i.vendors.$j.vendor_name", "Vendor '{$vendor['vendor_name']}' is inactive.");
+                    }
+                }
+            }
+        });
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+        $validated = $validator->validated();
 
-        $user = $request->user();
 
-        DB::beginTransaction();
-
+        // for checking if item or vendor is in the database
         try {
+            $resolvedItems = [];
+
+            foreach ($validated['items'] as $item) {
+                $itemModel = Item::where('description', $item['description'])->first();
+                $resolvedVendors = [];
+
+                foreach ($item['vendors'] ?? [] as $vendorData) {
+                    $vendor = Vendor::where('name', $vendorData['vendor_name'])->first();
+                    $resolvedVendors[] = [
+                        'model' => $vendor,
+                        'data' => $vendorData,
+                    ];
+                }
+
+
+                $resolvedItems[] = [
+                    'model' => $itemModel,
+                    'qty_needed' => $item['qty_needed'],
+                    'vendors' => $resolvedVendors,
+                ];
+            }
+
+            // ✅ Begin actual insert after full validation
+            DB::beginTransaction();
+
             $canvass = CanvassSheet::create([
-                'created_by' => $user->username,
+                'created_by' => $username,
                 'status_id' => 1,
                 'remarks' => null,
             ]);
 
-            foreach ($validated['items'] as $item) {
-                $itemModel = Item::where('description', $item['description'])->firstOrFail(); // find id instead of description
-
+            foreach ($resolvedItems as $resolvedItem) {
                 $canvassItem = $canvass->items()->create([
-                    'item_id' => $itemModel->id,
-                    'qty_needed' => $item['qty_needed'],
+                    'item_id' => $resolvedItem['model']->id,
+                    'qty_needed' => $resolvedItem['qty_needed'],
                 ]);
 
-                foreach ($item['vendors'] ?? [] as $vendorData) {
-                    $vendor = Vendor::where('name', $vendorData['vendor_name'])->firstOrFail();
+                foreach ($resolvedItem['vendors'] as $vendorInfo) {
+                    $vendorData = $vendorInfo['data'];
+                    $vendorModel = $vendorInfo['model'];
 
                     $canvassItem->vendors()->create([
-                        'vendor_id' => $vendor->id,
-                        'quote' => $vendorData['price'] ?? 0,
-                        'stock' => $vendorData['stock'] ?? 0,
+                        'vendor_id' => $vendorModel->id,
+                        'quote' => $vendorData['price'],
+                        'stock' => $vendorData['stock'],
                         'qty_order' => $vendorData['amount'] ?? 0,
                         'remarks' => $vendorData['remarks'] ?? null,
                     ]);
                 }
             }
-
             DB::commit();
-            return response()->json(['message' => 'Canvass created successfully']);
-
+            return response()->json(['message' => 'Canvass sheet created successfully']);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Item or vendor has not yet been added to the database',
+            ], 404);
         } catch (\Exception $e) {
             DB::rollBack();
+
+            // Log the full error with stack trace to Laravel logs
+            Log::error('Canvass store failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
-                'message' => 'Failed to save canvass sheet',
+                'message' => 'Something went wrong while saving the canvass sheet.',
                 'error' => $e->getMessage(),
             ], 500);
         }
+
     }
+
     public function getLastQuote(Request $request)
     {
         $vendorName = $request->query('vendor');
