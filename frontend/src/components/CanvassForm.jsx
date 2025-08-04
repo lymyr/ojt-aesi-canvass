@@ -6,6 +6,17 @@ import FormVendor from "./FormVendor";
 import axios from "../axios";
 
 const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initialData=null }, ref) => {
+  const [allItemData, setAllItemData] = useState([]);
+  const [vendors, setVendors] = useState([""]);
+  const [itemSuggestions, setItemSuggestions] = useState([]);
+  const [vendorSuggestions, setVendorSuggestions] = useState([]);
+  const [showVendorFormIndex, setShowVendorFormIndex] = useState(null);
+  const [pendingVendor, setPendingVendor] = useState("");
+  const [showItemFormIndex, setShowItemFormIndex] = useState(null);
+  const [pendingItem, setPendingItem] = useState("");
+
+  const isReadOnly = isEditing && !editClicked;
+
   // items initial state (no need to hardcode vendor count)
   const [items, setItems] = useState([
     {
@@ -13,7 +24,7 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
       description: "",
       uom: "",
       qty_needed: "",
-      vendors: [], // vendor rows will sync automatically
+      vendors: vendors, // vendor rows will sync automatically
     },
   ]);
 
@@ -27,7 +38,7 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
         qty_needed: parseInt(item.qty_needed, 10) || 0,
         vendors: item.vendors.map((v, i) => ({
           vendor_name: vendors[i],
-          price: Math.round(parseFloat(v.price) * 100) / 100 || 0.00,
+          price: Math.round(parseFloat(v.price) * 100) / 100 || null,
           stock: parseInt(v.stock, 10) || 0,
           amount: parseInt(v.amount, 10) || 0,
           remarks: v.remarks?.trim() === "" ? null : v.remarks,
@@ -81,21 +92,7 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
     if (isEditing && editClicked && uniqueVendors.length > 0) {
       uniqueVendors.push("");
     }
-
-
   }, [initialData, isEditing, editClicked]);
-
-
-  const [allItemData, setAllItemData] = useState([]);
-  const [vendors, setVendors] = useState([""]);
-  const [itemSuggestions, setItemSuggestions] = useState([]);
-  const [vendorSuggestions, setVendorSuggestions] = useState([]);
-  const [showVendorFormIndex, setShowVendorFormIndex] = useState(null);
-  const [pendingVendor, setPendingVendor] = useState("");
-  const [showItemFormIndex, setShowItemFormIndex] = useState(null);
-  const [pendingItem, setPendingItem] = useState("");
-
-  const isReadOnly = isEditing && !editClicked;
 
   const fetchVendors = async () => {
     const res = await axios.get("/api/vendors");
@@ -174,9 +171,17 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
   };
 
   const addItem = () => {
+    const currentVendors = vendors.filter(v => v.trim() !== "").map(() => ({
+      price: "",
+      amount: "",
+      stock: "",
+      remarks: "",
+      total: 0,
+    }));
+
     setItems((prev) => [
       ...prev,
-      { id: Date.now() + Math.random(), description: "", vendors: [] },
+      { id: Date.now() + Math.random(), description: "", vendors: currentVendors },
     ]);
   };
 
@@ -190,6 +195,7 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
 
   const addVendor = () => {
     setVendors((prev) => [...prev, ""]);
+    
   };
 
   const removeVendor = (index) => {
@@ -233,6 +239,35 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
     });
   }, [items, vendors]);
 
+  useEffect(() => {
+  const filteredVendors = vendors.filter(v => v && v.trim() !== ""); // ✅ correct filtering
+
+  setItems(prevItems => {
+    return prevItems.map(item => {
+      const updatedVendors = [...item.vendors];
+
+      while (updatedVendors.length < filteredVendors.length) {
+        updatedVendors.push({
+          price: "",
+          amount: "",
+          stock: "",
+          remarks: "",
+          total: 0,
+        });
+      }
+
+      if (updatedVendors.length > filteredVendors.length) {
+        updatedVendors.length = filteredVendors.length;
+      }
+
+      return { ...item, vendors: updatedVendors };
+    });
+  });
+}, [vendors]);
+
+
+
+  
   return (
     <>
       <div className={s.masterContainer}>

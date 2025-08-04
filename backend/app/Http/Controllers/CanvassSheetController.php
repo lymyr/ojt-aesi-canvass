@@ -37,45 +37,7 @@ class CanvassSheetController extends Controller
     public function store(Request $request)
     {
         $username = $request->user()->username;
-        $validator = Validator::make($request->all(), [
-            'items' => 'required|array|min:1',
-            'items.*.description' => 'required|string|exists:items,description',
-            'items.*.qty_needed' => 'required|integer|min:1',
-            'items.*.vendors' => 'required|array|min:1',
-            'items.*.vendors.*.stock' => 'required|integer|min:0',
-            'items.*.vendors.*.price' => 'required|numeric|min:0',
-            'items.*.vendors.*.vendor_name' => 'required|string|exists:vendors,name',
-            'items.*.vendors.*.amount' => 'required|integer|min:0',
-            'items.*.vendors.*.remarks' => 'nullable|string',
-        ], [
-            'items.required' => 'You must add at least one item.',
-            'items.*.description.required' => 'Each item must have a description.',
-            'items.*.description.exists' => 'The item does not exist',
-            'items.*.qty_needed.required' => 'Quantity needed is required for each item.',
-            'items.*.vendors.required' => 'Each item must have at least one vendor.',
-            'items.*.vendors.*.stock.required' => 'Stock is required for each vendor.',
-            'items.*.vendors.*.price.required' => 'Price is required for each vendor.',
-            'items.*.vendors.*.vendor_name.required' => 'Vendor name is required.',
-            'items.*.vendors.*.vendor_name.exists' => 'The vendor does not exist.',
-            'items.*.vendors.*.amount.required' => 'Quantity to order is required.',
-        ]);
-        // for checking if vendor is active
-        $validator->after(function ($validator) use ($request) {
-            foreach ($request->items as $i => $item) {
-                foreach ($item['vendors'] as $j => $vendor) {
-                    $vendorRecord = \App\Models\Vendor::where('name', $vendor['vendor_name'])->first();
-                    if ($vendorRecord && !$vendorRecord->active) {
-                        $validator->errors()->add("items.$i.vendors.$j.vendor_name", "Vendor '{$vendor['vendor_name']}' is inactive.");
-                    }
-                }
-            }
-        });
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-        $validated = $validator->validated();
+        $validated = $this->canvassValidation($request);
 
         try {
             $resolvedItems = [];
@@ -205,6 +167,129 @@ class CanvassSheetController extends Controller
         ];
 
         return response()->json($formatted);
+    }
+    public function update(Request $request, $id)
+    {
+        $username = $request->user()->username;
+
+        $validator = Validator::make($request->all(), [
+            'items' => 'required|array|min:1',
+            'items.*.description' => 'required|string|exists:items,description',
+            'items.*.qty_needed' => 'required|integer|min:1',
+            'items.*.vendors' => 'required|array|min:1',
+            'items.*.vendors.*.stock' => 'required|integer|min:0',
+            'items.*.vendors.*.price' => 'required|numeric|min:0',
+            'items.*.vendors.*.vendor_name' => 'required|string|exists:vendors,name',
+            'items.*.vendors.*.amount' => 'required|integer|min:0',
+            'items.*.vendors.*.remarks' => 'nullable|string',
+        ]);
+        
+        // check inactive vendor
+        $validator->after(function ($validator) use ($request) {
+            foreach ($request->items as $i => $item) {
+                foreach ($item['vendors'] as $j => $vendor) {
+                    $vendorRecord = Vendor::where('name', $vendor['vendor_name'])->first();
+                    if ($vendorRecord && !$vendorRecord->active) {
+                        $validator->errors()->add("items.$i.vendors.$j.vendor_name", "Vendor '{$vendor['vendor_name']}' is inactive.");
+                    }
+                }
+            }
+        });
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $canvass = CanvassSheet::findOrFail($id);
+            $canvass->update(['remarks' => null]); // or keep unchanged
+
+            // Delete old entries
+            foreach ($canvass->items as $item) {
+                $item->vendors()->delete();
+            }
+            $canvass->items()->delete();
+
+            foreach ($request->items as $itemData) {
+                $item = Item::where('description', $itemData['description'])->first();
+                $canvassItem = $canvass->items()->create([
+                    'item_id' => $item->id,
+                    'qty_needed' => $itemData['qty_needed'],
+                ]);
+
+                foreach ($itemData['vendors'] as $vendorData) {
+                    $vendor = Vendor::where('name', $vendorData['vendor_name'])->first();
+
+                    $canvassItem->vendors()->create([
+                        'vendor_id' => $vendor->id,
+                        'quote' => $vendorData['price'],
+                        'stock' => $vendorData['stock'],
+                        'qty_order' => $vendorData['amount'],
+                        'remarks' => $vendorData['remarks'],
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Canvass sheet updated successfully']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Canvass update failed", ['error' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'Something went wrong during update.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    private function canvassValidation(Request $request)
+    {
+        $rules = [
+            'items' => 'required|array|min:1',
+            'items.*.description' => 'required|string|exists:items,description',
+            'items.*.qty_needed' => 'required|integer|min:1',
+            'items.*.vendors' => 'required|array|min:1',
+            'items.*.vendors.*.stock' => 'required|integer|min:0',
+            'items.*.vendors.*.price' => 'required|numeric|min:0',
+            'items.*.vendors.*.vendor_name' => 'required|string|exists:vendors,name',
+            'items.*.vendors.*.amount' => 'required|integer|min:0',
+            'items.*.vendors.*.remarks' => 'nullable|string',
+        ];
+
+        $messages = [
+            'items.required' => 'You must add at least one item.',
+            'items.*.description.required' => 'Each item must have a description.',
+            'items.*.description.exists' => 'The item does not exist.',
+            'items.*.qty_needed.required' => 'Quantity needed is required for each item.',
+            'items.*.vendors.required' => 'Each item must have at least one vendor.',
+            'items.*.vendors.*.stock.required' => 'Stock is required for each vendor.',
+            'items.*.vendors.*.price.required' => 'Price is required for each vendor.',
+            'items.*.vendors.*.vendor_name.required' => 'Vendor name is required.',
+            'items.*.vendors.*.vendor_name.exists' => 'The vendor does not exist.',
+            'items.*.vendors.*.amount.required' => 'Quantity to order is required.',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        $validator->after(function ($validator) use ($request) {
+            foreach ($request->items as $i => $item) {
+                foreach ($item['vendors'] as $j => $vendor) {
+                    $vendorRecord = Vendor::where('name', $vendor['vendor_name'])->first();
+                    if ($vendorRecord && !$vendorRecord->active) {
+                        $validator->errors()->add("items.$i.vendors.$j.vendor_name", "Vendor '{$vendor['vendor_name']}' is inactive.");
+                        return;
+                    }
+                }
+            }
+        });
+
+
+        $validator->validate();
+
+        return $validator->validated();
     }
 
 }

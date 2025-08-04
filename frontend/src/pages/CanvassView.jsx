@@ -52,9 +52,11 @@ function CanvassView({
 
     const formData = formRef.current.getFormData(); // Custom method from CanvassForm
     try {
-        const response = await axios.post("/api/canvass-sheets", formData);
+        const url = isEditMode ? `/api/canvass-sheets/${id}` : "/api/canvass-sheets";
+        const method = isEditMode ? "put" : "post";
+        const response = await axios[method](url, formData);
         alert(response.data.message); // ✅ get success message from backend
-        navigate("/");
+        method === 'put' ? navigate(`/api/canvass-sheets/${id}`) : navigate("/");
         setTimeout(() => navigate("/canvass"), 10);
     } catch (error) {
         console.error("Save failed:", error);
@@ -98,7 +100,7 @@ function CanvassView({
       ) : (
         <>
           <button className={s.close} onClick={() => {confirm("Unsaved edits will be lost. Do you want to proceed?") && setEditClicked(false)}}>Cancel</button>
-          <button className={s.save} onClick={() => {confirm("Would you like to save your changes?") && handleSave}}>Save</button>
+          <button className={s.save} onClick={() => {confirm("Would you like to save your changes?") && handleSave()}}>Save</button>
         </>
       );
     }
