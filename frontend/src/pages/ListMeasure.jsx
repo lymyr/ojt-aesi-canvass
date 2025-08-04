@@ -24,7 +24,6 @@ function ListMeasure({ setTitle }) {
       setMeasures(formatted);
     } catch (error) {
       console.error("Error fetching UoMs:", error);
-      alert("Failed to load units of measure.");
     }
   };
 

@@ -1,8 +1,7 @@
-import { Link } from "react-router-dom";
 import s from "./ListView.module.css";
 
 
-function ListView({ columns = [], rows = [] }) {
+function ListView({ columns = [], rows = [], onRowClick}) {
   return (
     <table className={s.table}>
       <thead>
@@ -15,7 +14,7 @@ function ListView({ columns = [], rows = [] }) {
       <tbody>
         {rows.length > 0 ? (
           rows.map((row, rowIndex) => (
-            <tr key={rowIndex}>
+            <tr key={rowIndex} onClick={() => onRowClick?.(row)}>
               {columns.map((col, colIndex) => (  
                   <td key={colIndex}>{row[col] ?? ""}</td>
               ))}

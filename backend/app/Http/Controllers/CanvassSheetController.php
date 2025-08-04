@@ -171,4 +171,40 @@ class CanvassSheetController extends Controller
 
         return response()->json(['price' => $quote]);
     }
+
+    public function getCanvass($id)
+    {
+        $canvass = CanvassSheet::with([
+            'items.item.uom', // Load item and its unit of measure
+            'items.vendors.vendor' // Load vendor details for each item
+        ])->findOrFail($id);
+    
+        $formatted = [
+            'id' => $canvass->id,
+            'created_at' => $canvass->created_at,
+            'updated_at' => $canvass->updated_at,
+            'created_by' => $canvass->created_by,
+            'remarks' => $canvass->remarks,
+            'status' => $canvass->status->name,
+            'items' => $canvass->items->map(function ($ci) {
+                return [
+                    'description' => $ci->item->description,
+                    'uom' => $ci->item->uom->abbreviation ?? 'N/A',
+                    'qty_needed' => $ci->qty_needed,
+                    'vendors' => $ci->vendors->map(function ($civ) {
+                        return [
+                            'vendor_name' => $civ->vendor->name,
+                            'price' => $civ->quote,
+                            'stock' => $civ->stock,
+                            'amount' => $civ->qty_order,
+                            'remarks' => $civ->remarks,
+                        ];
+                    }),
+                ];
+            }),
+        ];
+
+        return response()->json($formatted);
+    }
+
 }

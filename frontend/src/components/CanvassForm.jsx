@@ -5,7 +5,7 @@ import FormItem from "./FormItem";
 import FormVendor from "./FormVendor";
 import axios from "../axios";
 
-const CanvassForm = forwardRef(({ isEditing = false, editClicked = true }, ref) => {
+const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initialData=null }, ref) => {
   // items initial state (no need to hardcode vendor count)
   const [items, setItems] = useState([
     {
@@ -35,6 +35,56 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true }, ref) 
       })),
     }),
   }));
+  
+  useEffect(() => {
+    if (!initialData) return;
+
+    const uniqueVendors = [];
+
+    const formattedItems = initialData.items.map(item => {
+      const vendorDetails = item.vendors.map(vendor => {
+        if (!uniqueVendors.includes(vendor.vendor_name)) {
+          uniqueVendors.push(vendor.vendor_name);
+        }
+
+        return {
+          price: vendor.price,
+          stock: vendor.stock,
+          amount: vendor.amount,
+          remarks: vendor.remarks,
+          total: vendor.price * vendor.amount
+        };
+      });
+
+      return {
+        id: Date.now() + Math.random(),
+        description: item.description,
+        qty_needed: item.qty_needed,
+        uom: item.uom || "N/A",
+        vendors: vendorDetails,
+      };
+    });
+
+    setItems(formattedItems);
+    setVendors(uniqueVendors);
+
+    if (isEditing && editClicked) {
+      formattedItems.push({
+        id: Date.now() + Math.random(),
+        description: "",
+        uom: "",
+        qty_needed: "",
+        vendors: [],
+      });
+    }
+    
+    if (isEditing && editClicked && uniqueVendors.length > 0) {
+      uniqueVendors.push("");
+    }
+
+
+  }, [initialData, isEditing, editClicked]);
+
 
   const [allItemData, setAllItemData] = useState([]);
   const [vendors, setVendors] = useState([""]);

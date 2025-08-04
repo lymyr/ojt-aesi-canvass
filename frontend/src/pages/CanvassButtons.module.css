@@ -1,3 +1,9 @@
+.headerContainer {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+}
+
 .btnContainer {
     display: flex;
     justify-content: end;
@@ -8,6 +14,7 @@
     background-color: transparent;
     border:none;
     width:10ch;
+    height: fit-content;
     font-size: 0.8rem;
     border-radius: 8px;
     cursor: pointer;
@@ -36,22 +43,59 @@
 
 /* for edit view */
 .detailContainer {
-    padding-inline: 8px;
-    padding-block: 16px;
     display: flex;
     flex-direction: column;
     gap:12px;
-    
-}
-.detailContainer > div:nth-child(1) {
-    text-align: center;
-}
-.detailContainer > div:nth-child(1) > p:nth-child(1) {
-    font-weight: 900;
-    font-size: 1.2rem;
-    margin-bottom: -2px;
-    letter-spacing: 0.6px;
+    font-size: 0.8rem;
 }
 .detailContainer span {
+    font-weight: 900;
+    margin-right: 2px;
+}
+.detailContainer > *:last-child {
+    margin-bottom: 24px;
+}
+
+.canvassStatus {
+    display: flex;
     font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    align-items: center;
+    gap:6px;
+    width: fit-content;
+    padding:4px 6px;
+    border-radius: 120px;
+    position: absolute;
+    right:-4px;
+    top:-40px;
+    box-shadow: 1px 1px 4px rgb(156, 156, 156);
+    cursor: default;
+}
+.canvassStatus:hover {
+    top:-41px;
+    letter-spacing: 1.2px;
+    transition: 200ms;
+    box-shadow: 2px 2px 4px rgb(156, 156, 156);
+}
+.canvassStatus:hover p, .canvassStatus:hover img {
+    opacity: 1;
+    transition: 350ms;
+}
+.canvassStatus p {
+    opacity: 0.6;
+}
+.canvassStatus img {
+    height:1.1rem;
+    opacity: 0.6;
+}
+
+.Pending {
+    background-color: rgb(251, 211, 90);
+}
+.NeedsAttention {
+    background-color: rgb(255, 137, 137);
+}
+.Approved {
+    background-color: rgb(212, 255, 212);
 }

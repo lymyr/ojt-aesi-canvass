@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Search from "../components/Search";
 import ListView from "../components/ListView";
 import Paginate from "../components/Paginate";
@@ -9,6 +10,7 @@ import s from "./listActions.module.css";
 function Dashboard({ setTitle }) {
   console.log("mounted");
   const [rows, setRows] = useState([]);
+  const navigate = useNavigate();
 
   const fetchCanvasses = async (page = 1) => {
     try {
@@ -36,12 +38,18 @@ function Dashboard({ setTitle }) {
     <div className={s.container}>
       <div className={s.listActions}>
         <Search />
-        <Link to="/canvass/new"><button>Add Canvass</button></Link>
+        <button onClick={() => navigate("/canvass/new")}>Add Canvass</button>
       </div>
 
       <ListView
         columns={["ID", "Created By", "Create Date", "Status"]}
         rows={rows}
+        onRowClick={(row) => {
+          // navigate to /canvass/:id — you can also pass `state: row`
+          navigate(`/canvass/${row.ID}`, {
+            state: { canvassId: row.ID },
+          });
+        }}
       />
 
       <Paginate/>

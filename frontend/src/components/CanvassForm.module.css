@@ -20,14 +20,16 @@
     border-spacing: 0;
     font-size: 0.875rem;
 }
-
 .table, .table tr, .table td {
-    border: 0.5px solid rgb(179, 215, 187);
+    background-color: white;
+}
+.table td {
+    border: 0.5px solid rgb(198, 217, 202);
     background-color: white;
 }
 
 .table tr:first-child td {
-    padding: 2px 8px;
+    padding: 8px 12px;
     letter-spacing: 1px;
 }
 .table tr:nth-child(2) td:nth-child(1),
@@ -35,9 +37,35 @@
 .table tr:nth-child(3) {
     font-weight: 600;
 }
+
 .table tbody tr:nth-child(odd) input,
 .table tbody tr:nth-child(odd) td {
     background-color: rgb(225, 236, 226);
+}
+.table tbody tr:nth-child(2) td:first-child,
+.table tbody tr:nth-child(3) td {   /* header column */
+    background-color: rgb(113, 145, 113);
+    border: 0.5px solid rgb(113, 145, 113);
+    color: rgb(217, 236, 214);
+    padding: 6px 8px;
+    font-size: 0.9rem;
+}
+.table tbody tr:nth-child(2) td input {
+    padding-block: 6px;
+    font-size: 0.9rem;
+}
+.table tbody tr:nth-child(3) td {
+    padding-block: 12px;
+}
+.table tbody tr:nth-child(2) td:first-child {
+    border-bottom: 0.5px solid rgb(69, 104, 69);
+}
+.table tbody tr:nth-child(3) td:nth-child(5n + 8),
+.table tbody tr:nth-child(3) td:nth-child(3) {
+    /* background-color: #e4d1a9;
+    border: 0.5px solid #e4d1a9; */
+    border: 0.5px solid #ded0b5;
+    color: #607f52;
 }
 
 .table td input,
@@ -60,7 +88,8 @@
 
 .table tr:first-child td {
     font-weight: 600;
-    background-color: rgb(113, 145, 113) !important;
+    background-color: rgb(84, 108, 84) !important;
+    border: 1px solid rgb(84, 108, 84) !important;
     color: rgb(217, 236, 214);
 }
 
@@ -80,6 +109,8 @@
 .table tr td input {
     border: none;
     width: 100%;
+    padding: 4px 8px;
+
 }
 .table tr td div:has(input) {
     display:flex;
@@ -87,10 +118,12 @@
 
 .table input:hover:not(:focus):not(:disabled),
 .table td:has(input:hover:not(:disabled)):not(:has(input:focus)) {
-  background-color: rgb(203, 242, 255) !important;
+  background-color: rgb(224, 247, 255) !important;
   z-index: 1;
 }
-
+.table td:has(input:hover:not(:disabled)):not(:has(input:focus)) {
+    border: 0.5px solid rgb(224, 247, 255);
+}
 .table td {
     position: relative;
 }
@@ -136,7 +169,7 @@
 
 .table tbody tr:nth-child(3) td {
     position: sticky;
-    top: 15px;
+    top: 29px;
     z-index: 8;
 }
 
@@ -152,9 +185,7 @@ table.table tbody tr:nth-child(3) td:nth-child(1),
 table.table tbody tr:nth-child(3) td:nth-child(2) {
     z-index:14;
 }
-/* table.table tbody tr:nth-child(n + 4) td:nth-child(3) {
-    border-right: 1px solid rgb(150, 150, 150);
-} */
+
 /* item input sticky consistency START */
 .table tbody tr:nth-child(n+3) td:nth-child(1) {
     position: sticky;
@@ -179,7 +210,7 @@ table.table tbody tr:nth-child(3) td:nth-child(2) {
 
 .table tr:nth-child(n+3) td:nth-child(3) {
     position: sticky;
-    left: 222px;
+    left: 233px;
     z-index: 12;
 }
 
@@ -237,7 +268,7 @@ table.table input:disabled::placeholder {
 .table input:disabled,
 .table td:has(input:disabled) {
     background-color: rgb(227, 227, 227);
-    color:black;
+    color:rgb(121, 121, 121);
 }
 .table tr:nth-child(odd) input:disabled,
 .table tr:nth-child(odd) td:has(input:disabled) {

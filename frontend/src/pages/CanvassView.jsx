@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Tabs from "../components/Tabs";
 import CanvassForm from "../components/CanvassForm";
@@ -12,13 +12,14 @@ import axios from "../axios";
 function CanvassView({
   mode = "create",           // "create" or "edit"
   setTitle,
-  canvassId = null,
   userRole = "maker",    // "requestor" or "approver"
   status = "pending"         // "pending", "approved", "needs attention"
 }) {
+    
   const isEditMode = mode === "edit";
   const isCreateMode = mode === "create";
 
+  const { id } = useParams();
   const formRef = useRef();
   const navigate = useNavigate();
 
@@ -32,9 +33,19 @@ function CanvassView({
 
   useEffect(() => {
     if (setTitle) {
-      setTitle(isEditMode ? `Canvass #${canvassId}` : "Create Canvass");
+      setTitle(isEditMode ? `Canvass #${id}` : "Create Canvass");
     }
-  }, [setTitle, isEditMode, canvassId]);
+  }, [setTitle, isEditMode, id]);
+
+  const [canvassData, setCanvassData] = useState(null);
+  
+  useEffect(() => {
+    if (mode === "edit") {
+      axios.get(`/api/canvass-sheets/${id}`).then(res => {
+        setCanvassData(res.data);
+      });
+    }
+  }, [id, mode]);
 
   const handleSave = async () => {
     if (!formRef.current) return;
@@ -81,13 +92,13 @@ function CanvassView({
     if (canEdit) {
       return !editClicked ? (
         <>
-          <button className={s.close}>Close</button>
+          <Link to="/canvass"><button className={s.close}>Close</button></Link>
           <button className={s.save} onClick={() => setEditClicked(true)}>Edit</button>
         </>
       ) : (
         <>
-          <button className={s.close} onClick={() => setEditClicked(false)}>Cancel</button>
-          <button className={s.save} onClick={handleSave}>Save</button>
+          <button className={s.close} onClick={() => {confirm("Unsaved edits will be lost. Do you want to proceed?") && setEditClicked(false)}}>Cancel</button>
+          <button className={s.save} onClick={() => {confirm("Would you like to save your changes?") && handleSave}}>Save</button>
         </>
       );
     }
@@ -115,8 +126,26 @@ function CanvassView({
 
   return (
     <>
-      <div className={s.btnContainer}>
-        {renderButtons()}
+      <div className={s.headerContainer}>
+        {canvassData && (
+                <div className={`${s.canvassStatus} ${s[canvassData.status.replace(/\s+/g, "")]}`}>
+                    <p>{canvassData.status}</p>
+                    {canvassData.status === "Pending" && (<img src="../src/assets/pending.svg"/>)}
+                    {canvassData.status === "Needs Attention" && (<img src="../src/assets/attention.svg"/>)}
+                    {canvassData.status === "Approved" && (<img src="../src/assets/approved.svg"/>)}
+                </div>
+        )}
+        <div className={s.detailContainer}>
+            {canvassData && (
+                <div>
+                    <p><span>Created by: </span>{canvassData.created_by}</p>
+                    <p><span>Create Date: </span>{new Date(canvassData.created_at).toLocaleString()}</p>
+                </div>
+            )}
+        </div>
+        <div className={s.btnContainer}>
+            {renderButtons()}
+        </div>
       </div>
 
       <Tabs
@@ -125,22 +154,13 @@ function CanvassView({
         setActiveTab={setActiveTab}
       />
 
-      {isEditMode && (
-        <div className={s.detailContainer}>
-          <div></div>
-          <div>
-            <p><span>Created by: </span>Username</p>
-            <p><span>Create Date: </span>{new Date().toLocaleString()}</p>
-          </div>
-        </div>
-      )}
-
       <div style={{ display: activeTab === "canvass sheet" ? "block" : "none" }}>
         <CanvassForm
           ref={formRef}
           isEditing={isEditMode}
           editClicked={editClicked}
-          canvassId={canvassId}
+          canvassId={id}
+          initialData={isEditMode ? canvassData : null}
         />
       </div>
 

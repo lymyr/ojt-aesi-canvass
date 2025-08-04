@@ -6,9 +6,7 @@ function Sidebar({ user }) {
   const location = useLocation();
 
   useEffect(() => {
-    const shouldAutoCollapse =
-      location.pathname === "/canvass/new" ||
-      location.pathname === "/canvass/edit";
+    const shouldAutoCollapse = location.pathname.startsWith("/canvass/")
     console.log(shouldAutoCollapse);
     if (shouldAutoCollapse) {
       setCollapsed(true);

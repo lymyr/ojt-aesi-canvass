@@ -30,6 +30,10 @@ function MainLayout({ setTitle, title, onLogout, user }) {
             <Route path="/canvass" element={<Dashboard setTitle={setTitle} />} />
             <Route path="/canvass/new" element={<CanvassView setTitle={setTitle} />} />
             <Route path="/canvass/edit" element={<CanvassView setTitle={setTitle} mode="edit" />} />
+            <Route
+              path="/canvass/:id"
+              element={<CanvassView mode="edit" setTitle={setTitle} />}
+            />
             <Route path="/items" element={<ListItem setTitle={setTitle} />} />
             <Route path="/vendors" element={<ListVendor setTitle={setTitle} />} />
             <Route path="/uom" element={<ListMeasure setTitle={setTitle} />} />
