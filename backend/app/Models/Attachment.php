@@ -12,7 +12,7 @@ class Attachment extends Model
         'path', 
         'added_by',
     ];
-
+    // shouldnt be limited to canvass sheet
     public function canvassSheet()
     {
         return $this->belongsTo(CanvassSheet::class, 'ref_id');

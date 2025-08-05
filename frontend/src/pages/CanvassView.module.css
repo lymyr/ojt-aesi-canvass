@@ -39,7 +39,15 @@
     background-color: rgb(204, 110, 110);
     color: white;
 }
-
+.btnContainer .reject {
+    border: 1px solid rgb(255, 111, 111);
+    color: rgb(255, 111, 111);
+    font-weight: 600;
+}
+.btnContainer .reject:hover {
+    color: white;
+    background-color: rgb(255, 111, 111);
+}
 
 /* for edit view */
 .detailContainer {
@@ -98,4 +106,24 @@
 }
 .Approved {
     background-color: rgb(212, 255, 212);
+}
+
+
+.remarks {
+    margin:6px;
+    padding-inline: 8px;
+    border-left:4px solid rgb(255, 171, 171); 
+    color:rgb(55, 55, 55);
+}
+.remarks > p:first-child {
+    font-weight: bold;
+    font-size: 1.2rem;
+    background-color: rgb(255, 137, 137);
+    color: rgb(133, 73, 73);
+    margin-left:-8px;
+    padding-inline:12px;
+    width: fit-content;
+}
+.remarks > p:last-child {
+    padding:4px;
 }

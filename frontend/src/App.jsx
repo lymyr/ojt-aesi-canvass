@@ -3,9 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
-
-import NewCanvass from './pages/CreateCanvass';
-import EditCanvass from './pages/EditCanvass';
 import Dashboard from './pages/Dashboard';
 import ListMeasure from './pages/ListMeasure';
 import ListItem from './pages/ListItem';
@@ -17,7 +14,6 @@ import CanvassView from './pages/CanvassView';
 import axios from "./axios";
 
 
-// Layout for authenticated pages
 function MainLayout({ setTitle, title, onLogout, user }) {
   return (
     <div className="grid-container">
@@ -27,12 +23,11 @@ function MainLayout({ setTitle, title, onLogout, user }) {
         <h1>{title}</h1>
         <div className="inner-content">
           <Routes>
-            <Route path="/canvass" element={<Dashboard setTitle={setTitle} />} />
-            <Route path="/canvass/new" element={<CanvassView setTitle={setTitle} />} />
-            <Route path="/canvass/edit" element={<CanvassView setTitle={setTitle} mode="edit" />} />
+            <Route path="/canvass" element={<Dashboard setTitle={setTitle} userRole={user.role}/>} />
+            <Route path="/canvass/new" element={<CanvassView setTitle={setTitle} userRole={user.role} />} />
             <Route
               path="/canvass/:id"
-              element={<CanvassView mode="edit" setTitle={setTitle} />}
+              element={<CanvassView mode="edit" setTitle={setTitle} userRole={user.role}/>}
             />
             <Route path="/items" element={<ListItem setTitle={setTitle} />} />
             <Route path="/vendors" element={<ListVendor setTitle={setTitle} />} />

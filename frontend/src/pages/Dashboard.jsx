@@ -7,7 +7,7 @@ import Paginate from "../components/Paginate";
 import axios from "../axios";
 import s from "./listActions.module.css";
 
-function Dashboard({ setTitle }) {
+function Dashboard({ setTitle, userRole}) {
   console.log("mounted");
   const [rows, setRows] = useState([]);
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ function Dashboard({ setTitle }) {
     <div className={s.container}>
       <div className={s.listActions}>
         <Search />
-        <button onClick={() => navigate("/canvass/new")}>Add Canvass</button>
+        {userRole === "maker" && (<button onClick={() => navigate("/canvass/new")}>Add Canvass</button>)} {/*render only on maker*/}
       </div>
 
       <ListView

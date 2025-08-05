@@ -19,7 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/users', [UserController::class, 'index']);
     Route::post('/users', [UserController::class, 'store']);
-    Route::put('/users/{user}', [UserController::class, 'update']);
+    Route::put('/users/{user}', [UserController::class, 'update']); // to do
 
     Route::get('/vendors', [VendorController::class, 'index']);
     Route::post('/vendors', [VendorController::class, 'store']);
@@ -31,7 +31,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/uoms', [UomController::class, 'store']);
 
     Route::get('/canvass-sheets', [CanvassSheetController::class, 'index']);
-    Route::post('/canvass-sheets', [CanvassSheetController::class, 'store']);
+    Route::post('/canvass-sheets', [CanvassSheetController::class, 'save']);
     Route::get('/canvass/last-quote', [CanvassSheetController::class, 'getLastQuote']);
     Route::get('/canvass-sheets/{id}', [CanvassSheetController::class, 'getCanvass']);
+    Route::put('/canvass-sheets/{id}', [CanvassSheetController::class, 'save']);
 });

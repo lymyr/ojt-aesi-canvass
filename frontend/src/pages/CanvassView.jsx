@@ -5,20 +5,19 @@ import Tabs from "../components/Tabs";
 import CanvassForm from "../components/CanvassForm";
 import Changelog from "../components/Changelog";
 import DocAttach from "../components/DocAttach";
-import s from "./CanvassButtons.module.css";
+import s from "./CanvassView.module.css";
 
 import axios from "../axios";
 
 function CanvassView({
   mode = "create",           // "create" or "edit"
   setTitle,
-  userRole = "maker",    // "requestor" or "approver"
+  userRole = "maker",        // or approver
   status = "pending"         // "pending", "approved", "needs attention"
 }) {
     
   const isEditMode = mode === "edit";
   const isCreateMode = mode === "create";
-
   const { id } = useParams();
   const formRef = useRef();
   const navigate = useNavigate();
@@ -73,12 +72,42 @@ function CanvassView({
   };
 
 
-  const handleApprove = () => {
-    // approve logic here
-  };
+  const handleApprove = async () => {
+    if (userRole !== "approver") return;
+    if (confirm("Are you sure you want to approve this canvass?")) {
+      try {
+        const response = await axios.put(`/api/canvass-sheets/${id}`, {
+          status_id: 2,
+          remarks: null
+        });
 
-  const handleReject = () => {
-    // reject logic here
+        alert("Canvass approved.");
+        navigate("/canvass");
+      } catch (error) {
+        console.error("Approve failed:", error);
+        alert("Failed to approve canvass.");
+      }
+    };
+  }
+
+  const handleReject = async () => {
+    if (userRole !== "approver") return;
+
+    const reason = prompt("Enter reason for rejection:");
+    if (!reason) return;
+
+    try {
+      const response = await axios.put(`/api/canvass-sheets/${id}`, {
+        status_id: 3, // 👈 assuming 3 = "Needs Attention", adjust as needed
+        remarks: reason,
+      });
+
+      alert("Canvass rejected.");
+      navigate("/canvass");
+    } catch (error) {
+      console.error("Reject failed:", error);
+      alert("Failed to reject canvass.");
+    }
   };
 
   const renderButtons = () => {
@@ -105,10 +134,10 @@ function CanvassView({
       );
     }
 
-    if (canApprove) {
+    if (canApprove && canvassData?.status == 'Pending') {
       return (
         <>
-          <button className={s.close}>Close</button>
+          <Link to="/canvass"><button className={s.close}>Close</button></Link>
           <button className={s.reject} onClick={handleReject}>Reject</button>
           <button className={s.save} onClick={handleApprove}>Approve</button>
         </>
@@ -117,14 +146,25 @@ function CanvassView({
 
     // Fallback (e.g., approved already or readonly)
     return (
-      <button className={s.close}>Close</button>
+      <Link to="/canvass"><button className={s.close}>Close</button></Link>
     );
   };
 
-  const tabs = ["canvass sheet", "documents"];
-  if (isEditMode) {
-    tabs.push("Changelog", "PDF");
-  }
+  const [tabs, setTabs] = useState(["canvass sheet", "documents"]);
+  useEffect(() => {
+    const newTabs = ["canvass sheet", "documents"];
+
+    if (isEditMode) {
+      newTabs.push("Changelog");
+    }
+    if (!canvassData) return;
+    if (canvassData.status === "Approved") {
+      newTabs.push("PDF");
+    }
+
+    setTabs(newTabs);
+  }, [isEditMode, canvassData]);
+
 
   return (
     <>
@@ -164,6 +204,12 @@ function CanvassView({
           canvassId={id}
           initialData={isEditMode ? canvassData : null}
         />
+        {canvassData && canvassData.remarks && (
+          <div className={s.remarks}>
+            <p>Rejection remarks</p>
+            <p>{canvassData.remarks}</p>
+          </div>
+          )}
       </div>
 
       <div style={{ display: activeTab === "documents" ? "block" : "none" }}>

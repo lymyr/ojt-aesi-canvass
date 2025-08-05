@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('attachments', function (Blueprint $table) {
             $table->id();
+            // shouldnt be limited to canvass sheet
             $table->foreignId('ref_id')->constrained('canvass_sheets')->onDelete('cascade');
             $table->string('file_name');
             $table->string('path');

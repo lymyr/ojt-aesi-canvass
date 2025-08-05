@@ -7,6 +7,7 @@ import axios from "../axios";
 
 const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initialData=null }, ref) => {
   const [allItemData, setAllItemData] = useState([]);
+  const [allVendorData, setAllVendorData] = useState([]);
   const [vendors, setVendors] = useState([""]);
   const [itemSuggestions, setItemSuggestions] = useState([]);
   const [vendorSuggestions, setVendorSuggestions] = useState([]);
@@ -21,6 +22,7 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
   const [items, setItems] = useState([
     {
       id: Date.now(),
+      item_id: null,
       description: "",
       uom: "",
       qty_needed: "",
@@ -30,22 +32,57 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
 
 
   useImperativeHandle(ref, () => ({
-    getFormData: () => ({
-      items: items
-      .filter(item => item.description.trim() !== "")
-      .map((item) => ({
-        description: item.description.trim(),
-        qty_needed: parseInt(item.qty_needed, 10) || 0,
-        vendors: item.vendors.map((v, i) => ({
-          vendor_name: vendors[i],
-          price: Math.round(parseFloat(v.price) * 100) / 100 || null,
-          stock: parseInt(v.stock, 10) || 0,
-          amount: parseInt(v.amount, 10) || 0,
-          remarks: v.remarks?.trim() === "" ? null : v.remarks,
-        })),
-      })),
-    }),
-  }));
+  getFormData: () => {
+    console.log("🔍 Starting getFormData...");
+    const processedItems = items
+      .filter(item => {
+        const isValid = !!item.item_id;
+        if (!isValid) console.warn("⚠️ Skipping item with missing item_id:", item);
+        return isValid;
+      })
+      .map((item, itemIndex) => {
+        console.log(`📦 Processing item #${itemIndex + 1}:`, item);
+        const processedVendors = item.vendors
+          .filter((v, vendorIndex) => {
+            const isValidPrice = typeof v.price === "string" && v.price.trim() !== "" && !isNaN(parseFloat(v.price));
+            const isValidStock = typeof v.stock === "string" && v.stock.trim() !== "" && !isNaN(parseInt(v.stock, 10));
+            const isValidAmount = typeof v.amount === "string" && v.amount.trim() !== "" && !isNaN(parseInt(v.amount, 10));
+            const isValidRemarks = typeof v.remarks === "string" && v.remarks.trim() !== "";
+
+            const hasMeaningfulInput = isValidPrice || isValidStock || isValidAmount || isValidRemarks;
+            const isValidVendor = v.vendor_id && hasMeaningfulInput;
+
+            if (!isValidVendor) {
+              console.warn(`⚠️ Skipping vendor #${vendorIndex + 1} for item_id ${item.item_id}:`, v);
+            }
+
+            return isValidVendor;
+          })
+          .map((v, vendorIndex) => {
+            const parsed = {
+              vendor_id: v.vendor_id,
+              price: parseFloat(v.price) || null,
+              stock: parseInt(v.stock, 10) || 0,
+              amount: parseInt(v.amount, 10) || 0,
+              remarks: v.remarks?.trim() === "" ? null : v.remarks,
+            };
+            console.log(`✅ Vendor #${vendorIndex + 1} for item_id ${item.item_id}:`, parsed);
+            return parsed;
+          });
+
+        return {
+          item_id: item.item_id,
+          qty_needed: parseInt(item.qty_needed, 10) || 0,
+          vendors: processedVendors,
+        };
+      });
+
+    console.log("✅ Final processed form data:", processedItems);
+    return { items: processedItems };
+  },
+}));
+
+
   
   useEffect(() => {
     if (!initialData) return;
@@ -66,13 +103,20 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
           total: vendor.price * vendor.amount
         };
       });
-
       return {
         id: Date.now() + Math.random(),
+        item_id: item.item_id ?? null, // ✅ restore item_id
         description: item.description,
         qty_needed: item.qty_needed,
         uom: item.uom || "N/A",
-        vendors: vendorDetails,
+        vendors: item.vendors.map(v => ({
+          vendor_id: v.vendor_id ?? null, // ✅ restore vendor_id
+          price: v.price ?? "",
+          stock: v.stock ?? "",
+          amount: v.amount ?? "",
+          remarks: v.remarks ?? "",
+          total: Math.ceil((parseFloat(v.price || 0) * parseFloat(v.amount || 0)) * 100) / 100,
+        })),
       };
     });
 
@@ -96,6 +140,7 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
 
   const fetchVendors = async () => {
     const res = await axios.get("/api/vendors");
+    setAllVendorData(res.data);
     setVendorSuggestions(res.data.map(v => v.name));
     return res.data;
   };
@@ -124,7 +169,7 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
     const vendors = updated[itemIndex].vendors || [];
 
     while (vendors.length <= vendorIndex) {
-      vendors.push({ price: "", amount: "", total: "", stock: "", remarks: "" });
+      vendors.push({ vendor_id: null, price: "", amount: "", total: "", stock: "", remarks: "" });
     }
 
     vendors[vendorIndex][field] = value;
@@ -139,9 +184,25 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
 
   const handleVendorFormClose = async () => {
     setShowVendorFormIndex(null);
-    await fetchVendors();
+    const latestVendors = await fetchVendors();
     setPendingVendor("");
+
+    setItems(prevItems => {
+      return prevItems.map(item => {
+        const updatedVendors = [...item.vendors];
+        for (let i = 0; i < vendors.length; i++) {
+          const name = vendors[i]?.trim();
+          const found = latestVendors.find(v => v.name === name);
+          if (!updatedVendors[i]) {
+            updatedVendors[i] = {};
+          }
+          updatedVendors[i].vendor_id = found?.id || null;
+        }
+        return { ...item, vendors: updatedVendors };
+      });
+    });
   };
+
 
   const handleMissingVendor = (index, val) => {
     setPendingVendor(val);
@@ -159,6 +220,7 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
       setItems(prev => {
         const copy = [...prev];
         copy[showItemFormIndex].description = matched.description;
+        copy[showItemFormIndex].item_id = matched.id;
         copy[showItemFormIndex].uom = matched.uom?.abbreviation || "N/A";
         return copy;
       });
@@ -171,19 +233,24 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
   };
 
   const addItem = () => {
-    const currentVendors = vendors.filter(v => v.trim() !== "").map(() => ({
-      price: "",
-      amount: "",
-      stock: "",
-      remarks: "",
-      total: 0,
-    }));
+    const currentVendors = vendors.filter(v => v.trim() !== "").map(vendorName => {
+      const match = allVendorData.find(v => v.name === vendorName);
+      return {
+        vendor_id: match?.id || null,
+        price: "",
+        amount: "",
+        stock: "",
+        remarks: "",
+        total: 0,
+      };
+    });
 
     setItems((prev) => [
       ...prev,
       { id: Date.now() + Math.random(), description: "", vendors: currentVendors },
     ]);
   };
+
 
   const removeItem = (id) => {
     if (items.length === 1) {
@@ -220,34 +287,19 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
     fetchVendors();
   }, []);
 
-  // 💡 Auto-fill unit price when item + vendor are both selected
-  useEffect(() => {
-    items.forEach((item, itemIndex) => {
-      vendors.forEach(async (vendorName, vendorIndex) => {
-        const vendorData = item.vendors?.[vendorIndex] || {};
-        if (
-          item.description?.trim() &&
-          vendorName?.trim() &&
-          !vendorData.price
-        ) {
-          const price = await fetchLatestQuote(item.description.trim(), vendorName.trim());
-          if (price !== "") {
-            updateVendorField(itemIndex, vendorIndex, "price", price);
-          }
-        }
-      });
-    });
-  }, [items, vendors]);
-
   useEffect(() => {
   const filteredVendors = vendors.filter(v => v && v.trim() !== ""); // ✅ correct filtering
 
   setItems(prevItems => {
     return prevItems.map(item => {
-      const updatedVendors = [...item.vendors];
+      const updatedVendors = [...(item.vendors || [])];
 
       while (updatedVendors.length < filteredVendors.length) {
+        const vendorName = filteredVendors[updatedVendors.length];
+        const match = allVendorData.find(v => v.name === vendorName);
+
         updatedVendors.push({
+          vendor_id: match?.id || null,
           price: "",
           amount: "",
           stock: "",
@@ -260,10 +312,17 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
         updatedVendors.length = filteredVendors.length;
       }
 
+      // 🔁 Update vendor_ids again in case vendor name changed
+      updatedVendors.forEach((v, i) => {
+        const vendorName = filteredVendors[i];
+        const match = allVendorData.find(v => v.name === vendorName);
+        v.vendor_id = match?.id || null;
+      });
+
       return { ...item, vendors: updatedVendors };
     });
   });
-}, [vendors]);
+}, [vendors, allVendorData]); // <-- make sure `allVendorData` is in the dependency list
 
 
 
@@ -293,10 +352,31 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
                           const updated = [...vendors];
                           updated[i] = e.target.value;
                           setVendors(updated);
+                          const vendorMatch = allVendorData.find(v => v.name === e.target.value);
+                          const updatedItems = [...items];
+                          updatedItems.forEach((item) => {
+                            if (!item.vendors[i]) {
+                              item.vendors[i] = {};
+                            }
+                            item.vendors[i].vendor_id = vendorMatch?.id || null; // 👈 store vendor_id
+                          });
+                          setItems(updatedItems);
                         }}
-                        onBlur={(e) => {
+                        onBlur={async (e) => {
                           if (e.target.value.trim() && i === vendors.length - 1) {
                             addVendor();
+                          }
+
+                          // Autofill prices for all items when vendor is unfocused
+                          const vendorName = e.target.value.trim();
+                          if (vendorName) {
+                            for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
+                              const itemDesc = items[itemIndex].description?.trim();
+                              if (itemDesc) {
+                                const price = await fetchLatestQuote(itemDesc, vendorName);
+                                updateVendorField(itemIndex, i, "price", price);
+                              }
+                            }
                           }
                         }}
                         onMissingValue={(newVendor) => {
@@ -338,17 +418,42 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
                             const value = e.target.value;
                             const itemMatch = allItemData.find(i => i.description === value);
                             const updated = [...items];
+                            updated[index].item_id = itemMatch?.id || null;
                             updated[index].description = value;
                             updated[index].uom = itemMatch?.uom?.abbreviation || "N/A";
                             setItems(updated);
                           }}
-                          onBlur={(e) => {
-                            const updated = [...items];
-                            setItems(updated);
-                            if (e.target.value.trim() && index === items.length - 1) {
+                         onBlur={async (e) => {
+                            const itemDesc = e.target.value.trim();
+                            if (itemDesc) {
+                              const vendorUpdates = [];
+                              for (let j = 0; j < vendors.length; j++) {
+                                const vendorName = vendors[j]?.trim();
+                                if (vendorName) {
+                                  const price = await fetchLatestQuote(itemDesc, vendorName);
+                                  vendorUpdates.push({ index: j, price });
+                                }
+                              }
+                              setItems((prevItems) => {
+                                const updated = [...prevItems];
+                                const vendors = updated[index].vendors || [];
+                                while (vendors.length < vendorUpdates.length) {
+                                  vendors.push({vendor_id: null, price: "", amount: "", stock: "", remarks: "", total: 0 });
+                                }
+                                vendorUpdates.forEach(({ index: vendorIdx, price }) => {
+                                  vendors[vendorIdx].price = price;
+                                  const amount = parseFloat(vendors[vendorIdx].amount) || 0;
+                                  vendors[vendorIdx].total = price * amount;
+                                });
+                                updated[index].vendors = vendors;
+                                return updated;
+                              });
+                            }
+                            if (itemDesc && index === items.length - 1) {
                               addItem();
                             }
                           }}
+
                           onMissingValue={(newItem) => {
                             handleMissingItem(index, newItem);
                           }}
