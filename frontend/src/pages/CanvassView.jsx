@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Tabs from "../components/Tabs";
 import CanvassForm from "../components/CanvassForm";
@@ -9,14 +9,9 @@ import s from "./CanvassView.module.css";
 
 import axios from "../axios";
 import PdfView from "../components/PdfView";
+import html2pdf from "html2pdf.js";
 
-function CanvassView({
-  mode = "create",           // "create" or "edit"
-  setTitle,
-  userRole = "maker",        // or approver
-  status = "pending"         // "pending", "approved", "needs attention"
-}) {
-    
+function CanvassView({mode = "create", setTitle, userRole = "maker", status = "pending"}) {
   const isEditMode = mode === "edit";
   const isCreateMode = mode === "create";
   const { id } = useParams();
@@ -50,6 +45,11 @@ function CanvassView({
   const handleSave = async () => {
     if (!formRef.current) return;
 
+    if (isEditMode && !formRef.current.hasChanges()) {
+      alert("No changes detected. Canvass sheet was not updated.");
+      return;
+    }
+    
     const formData = formRef.current.getFormData(); // Custom method from CanvassForm
     try {
         const url = isEditMode ? `/api/canvass-sheets/${id}` : "/api/canvass-sheets";
@@ -121,8 +121,8 @@ function CanvassView({
       );
     }
 
-    if (canEdit) {
-      return !editClicked ? (
+    if (canEdit && canvassData && canvassData.status != "Approved") {
+      return !editClicked? (
         <>
           <Link to="/canvass"><button className={s.close}>Close</button></Link>
           <button className={s.save} onClick={() => setEditClicked(true)}>Edit</button>
@@ -135,7 +135,7 @@ function CanvassView({
       );
     }
 
-    if (canApprove && canvassData?.status == 'Pending') {
+    if (canApprove && canvassData && canvassData?.status == 'Pending') {
       return (
         <>
           <Link to="/canvass"><button className={s.close}>Close</button></Link>
@@ -166,6 +166,19 @@ function CanvassView({
     setTabs(newTabs);
   }, [isEditMode, canvassData]);
 
+  const pdfRef = useRef(null);
+
+  const handleDownload = () => {
+    const element = pdfRef.current;
+    const opt = {
+      margin:       0.5,
+      filename:     `Canvass-${id}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 3 },
+      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().from(element).set(opt).save();
+  };
 
   return (
     <>
@@ -197,13 +210,14 @@ function CanvassView({
         setActiveTab={setActiveTab}
       />
 
-      <div style={{ display: activeTab === "canvass sheet" ? "block" : "none" }}>
+      <div style={{ display: activeTab === "canvass sheet" ? "block" : "none" }} >
         <CanvassForm
           ref={formRef}
           isEditing={isEditMode}
           editClicked={editClicked}
           canvassId={id}
           initialData={isEditMode ? canvassData : null}
+          status={canvassData?.status || null}
         />
         {canvassData && canvassData.remarks && (
           <div className={s.remarks}>
@@ -220,11 +234,12 @@ function CanvassView({
       {isEditMode && (
         <>
           <div style={{ display: activeTab === "Changelog" ? "block" : "none" }}>
-            <Changelog />
+            <Changelog id={id}/>
           </div>
-          {canvassData && (<div style={{ display: activeTab === "PDF" ? "block" : "none" }}>
-            <button className={s.downloadBtn}>Download</button>
-            <PdfView canvassData={canvassData} id={id} />
+
+          {canvassData && (<div className={s.pdfContainer} style={{ display: activeTab === "PDF" ? "block" : "none" }}>
+            <button className={s.downloadBtn} onClick={handleDownload}>Download</button>
+              <PdfView ref={pdfRef} canvassData={canvassData} id={id} />
           </div>)}
         </>
       )}

@@ -5,7 +5,7 @@ import FormItem from "./FormItem";
 import FormVendor from "./FormVendor";
 import axios from "../axios";
 
-const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initialData=null }, ref) => {
+const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initialData=null, status }, ref) => {
   const [allItemData, setAllItemData] = useState([]);
   const [allVendorData, setAllVendorData] = useState([]);
   const [vendors, setVendors] = useState([""]);
@@ -17,8 +17,7 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
   const [pendingItem, setPendingItem] = useState("");
 
   const isReadOnly = isEditing && !editClicked;
-
-  // items initial state (no need to hardcode vendor count)
+  
   const [items, setItems] = useState([
     {
       id: Date.now(),
@@ -26,7 +25,7 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
       description: "",
       uom: "",
       qty_needed: "",
-      vendors: vendors, // vendor rows will sync automatically
+      vendors: vendors,
     },
   ]);
 
@@ -80,6 +79,28 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
     console.log("✅ Final processed form data:", processedItems);
     return { items: processedItems };
   },
+  hasChanges: () => {
+    if (!initialData) return true;
+
+    const current = JSON.stringify(ref.current.getFormData());
+    const original = JSON.stringify({
+      items: initialData.items.map(item => ({
+        item_id: item.item_id,
+        qty_needed: parseInt(item.qty_needed, 10) || 0,
+        vendors: item.vendors
+          .filter(v => v.vendor_id)
+          .map(v => ({
+            vendor_id: v.vendor_id,
+            price: parseFloat(v.price) || null,
+            stock: parseInt(v.stock, 10) || 0,
+            amount: parseInt(v.amount, 10) || 0,
+            remarks: v.remarks?.trim() || null,
+          })),
+      })),
+    });
+
+    return current !== original;
+  }
 }));
 
 
@@ -105,12 +126,12 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
       });
       return {
         id: Date.now() + Math.random(),
-        item_id: item.item_id ?? null, // ✅ restore item_id
+        item_id: item.item_id ?? null,
         description: item.description,
         qty_needed: item.qty_needed,
         uom: item.uom || "N/A",
         vendors: item.vendors.map(v => ({
-          vendor_id: v.vendor_id ?? null, // ✅ restore vendor_id
+          vendor_id: v.vendor_id ?? null,
           price: v.price ?? "",
           stock: v.stock ?? "",
           amount: v.amount ?? "",
@@ -312,7 +333,6 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
         updatedVendors.length = filteredVendors.length;
       }
 
-      // 🔁 Update vendor_ids again in case vendor name changed
       updatedVendors.forEach((v, i) => {
         const vendorName = filteredVendors[i];
         const match = allVendorData.find(v => v.name === vendorName);
@@ -322,14 +342,11 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
       return { ...item, vendors: updatedVendors };
     });
   });
-}, [vendors, allVendorData]); // <-- make sure `allVendorData` is in the dependency list
-
-
-
+}, [vendors, allVendorData]);
   
   return (
     <>
-      <div className={s.masterContainer}>
+      <div className={`${s.masterContainer} ${status === "Approved" ? s.approved : s.notApproved}`}>
         <div className={s.tableContainer}>
           <table className={s.table}>
             <tbody>

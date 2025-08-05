@@ -1,7 +1,7 @@
 import React from "react";
 import s from "./PdfView.module.css";
 
-function PdfView({ canvassData, id }) {
+function PdfView({ canvassData, id, ref }) {
   if (!canvassData || !canvassData.items || canvassData.items.length === 0) {
     return <p>No data available</p>;
   }
@@ -9,9 +9,9 @@ function PdfView({ canvassData, id }) {
   const vendorCount = canvassData.items[0].vendors.length;
 
   return (
-    <div className={s.container}>
+    <div ref={ref} className={s.container}>
       <h2>Canvass Sheet #{id}</h2>
-      <p>AS OF: {new Date().toLocaleDateString("en-CA")}</p>
+      <p>AS OF: {new Date(canvassData.updated_at).toLocaleDateString("en-CA")}</p>
 
       {Array.from({ length: vendorCount }).map((_, vendorIndex) => {
         const vendorName =
@@ -49,7 +49,7 @@ function PdfView({ canvassData, id }) {
                         <td className={s.num}>{vendor.stock ?? 0}</td>
                         <td className={s.num}>{vendor.amount ?? 0}</td>
                         <td>{vendor.remarks ?? ""}</td>
-                        <td>{formatPrice(vendor.price * vendor.amount)}</td>
+                        <td className={s.num}>{formatPrice(vendor.price * vendor.amount)}</td>
                         </tr>
                     );
                     }

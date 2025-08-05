@@ -7,6 +7,7 @@ use App\Http\Controllers\VendorController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\UomController;
 use App\Http\Controllers\CanvassSheetController;
+use App\Models\LogData;
 
 Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
 Route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout']);
@@ -35,4 +36,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/canvass/last-quote', [CanvassSheetController::class, 'getLastQuote']);
     Route::get('/canvass-sheets/{id}', [CanvassSheetController::class, 'getCanvass']);
     Route::put('/canvass-sheets/{id}', [CanvassSheetController::class, 'save']);
+
+    Route::get('/changelog/{ref_table}/{ref_id}', function ($ref_table, $ref_id) {
+        return LogData::where('ref_table', $ref_table)
+            ->where('ref_id', $ref_id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    });
 });
+

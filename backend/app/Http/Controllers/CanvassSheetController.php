@@ -184,8 +184,16 @@ class CanvassSheetController extends Controller
                     'remarks' => $validated['remarks'] ?? null,
                     'status_id' => 1,
                 ]);
+            
+            
 
             if ($user->role == "maker") {
+                // changelog for updates
+                $before = null;
+                if ($id) {
+                    $before = CanvassSheet::with(['items.vendors'])->findOrFail($id)->toArray();
+                }
+
                 if ($id && $canvass->status_id == 3) {
                     $canvass->status_id = 1; // Reset to pending
                     $canvass->remarks = null; // Clear previous remarks if needed
@@ -233,6 +241,13 @@ class CanvassSheetController extends Controller
                         );
                     }
                 }
+
+                // changelog for updates
+                if ($id) {
+                    $after = CanvassSheet::with(['items.vendors'])->findOrFail($id)->toArray();
+                    log_change('canvass_sheets', $canvass->id, $user->username, $before, $after);
+                    $canvass->touch();
+                }
             }
             else if ($user->role == "approver") {
                 $canvass->remarks = $validated['remarks'];
@@ -259,7 +274,7 @@ class CanvassSheetController extends Controller
         }
     }
 
-
+    // to do: move this to different file
     private function canvassValidation(Request $request)
     {
         $user = $request->user();

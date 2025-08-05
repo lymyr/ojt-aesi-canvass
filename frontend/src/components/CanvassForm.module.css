@@ -265,12 +265,12 @@ table.table input:disabled::placeholder {
   -moz-appearance: textfield;
 }
 
-.table input:disabled,
-.table td:has(input:disabled) {
+.notApproved .table input:disabled,
+.notApproved .table td:has(input:disabled) {
     background-color: rgb(227, 227, 227);
     color:rgb(121, 121, 121);
 }
-.table tr:nth-child(odd) input:disabled,
-.table tr:nth-child(odd) td:has(input:disabled) {
+.notApproved .table tr:nth-child(odd) input:disabled,
+.notApproved .table tr:nth-child(odd) td:has(input:disabled) {
     background-color: rgb(204, 217, 205);
 }

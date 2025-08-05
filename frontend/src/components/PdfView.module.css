@@ -10,10 +10,10 @@
     margin-bottom: 0.5rem;
 }
 .container > p {
-    margin-bottom: 1.2rem;
+    margin-bottom: 1.8rem;
 }
 .section {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .table {
@@ -50,3 +50,4 @@
 .table tr:nth-child(even) td {
   background-color: rgb(232, 241, 233);
 }
+
