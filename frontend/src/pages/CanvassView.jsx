@@ -8,6 +8,7 @@ import DocAttach from "../components/DocAttach";
 import s from "./CanvassView.module.css";
 
 import axios from "../axios";
+import PdfView from "../components/PdfView";
 
 function CanvassView({
   mode = "create",           // "create" or "edit"
@@ -221,9 +222,10 @@ function CanvassView({
           <div style={{ display: activeTab === "Changelog" ? "block" : "none" }}>
             <Changelog />
           </div>
-          <div style={{ display: activeTab === "PDF" ? "block" : "none" }}>
-            {/* PDF preview component here */}
-          </div>
+          {canvassData && (<div style={{ display: activeTab === "PDF" ? "block" : "none" }}>
+            <button className={s.downloadBtn}>Download</button>
+            <PdfView canvassData={canvassData} id={id} />
+          </div>)}
         </>
       )}
     </>

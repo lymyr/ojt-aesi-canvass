@@ -11,55 +11,66 @@
     gap: 12px;
     border-radius: 8px;
     background-color: rgb(243, 243, 243);
+    padding:16px;
+    padding-left:8px;
 }
 .header {
     text-align: right;
+    color:rgb(104, 104, 104);
+    width: fit-content;
 }
 .header > h1:nth-child(1) {
-    font-size: 1.4rem;
+    font-size: 1.1rem;
 }
 .header > h1:nth-child(2) {
     font-size: 1rem;
     font-weight: 400;
 }
-.beforeAfter {
+.log {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+    border-left: 4px solid rgb(194, 194, 194);
+    background-color: rgb(231, 231, 231);
+    gap:6px;
+    padding:8px;
+    width: 100%;
+}
+.dataWrapper {
     display:flex;
     flex-direction: column;
-    justify-content: space-around;
-    width:100%;
+    padding:12px;
+    font-size: 0.875rem;
+    border-radius: 4px;
+    box-shadow: 1px 1px 3px rgb(170, 170, 170);
 }
-.beforeAfter > * {
-   padding:8px;
-   display:flex;
-   gap:8px;
-   flex-wrap: wrap;
+.dataWrapper > *:nth-child(n + 2) {
+    margin-left: 4px;
 }
 .before {
-    border-left: 4px solid rgb(196, 92, 92);
-    background-color: rgb(235, 213, 213);
-    color:rgb(120, 64, 64);
-    border-top-right-radius: 8px;
+    background-color: rgb(243, 208, 208);
+    color: rgb(148, 104, 104);
 }
 .after {
-    border-left: 4px solid rgb(125, 204, 125);
-    background-color: rgb(224, 241, 224);
-    color:rgb(42, 80, 42);
-    border-bottom-right-radius: 8px;
+    background-color: rgb(202, 231, 202);
+    color: rgb(83, 124, 83);
 }
-.rowContainer {
-  padding:12px;
-}
-.before .rowContainer {
-    background-color: rgb(247, 224, 224);
-}
-.after .rowContainer {
-    background-color: rgb(235, 251, 235);
-}
-.rowContainer > p:nth-child(1) {
-    font-size: 1rem;
-    text-align: center;
+
+.description {
     font-weight: 900;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
 }
-.vendorItem > p:nth-child(1){
-    font-weight: 900;
+.before .description {
+    color: rgb(118, 29, 29);
+}
+.after .description {
+    color: rgb(24, 98, 24);
+}
+.vendorItem {
+    margin-block: 2px;
+}
+
+.vendorName {
+    font-weight: 600;
 }
