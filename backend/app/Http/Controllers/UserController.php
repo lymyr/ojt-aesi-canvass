@@ -9,10 +9,22 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return User::select('id', 'username', 'role')->get();
+        $perPage = (int) $request->input('limit', 16);
+        $users = User::select('id', 'username', 'role')
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+        return response()->json([
+            'data' => $users->items(),
+            'meta' => [
+                'total' => $users->total(),
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+            ],
+        ]);
     }
+
 
     public function store(Request $request)
     {

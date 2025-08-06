@@ -15,13 +15,15 @@ use Illuminate\Http\Request;
 
 class CanvassSheetController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $canvasses = CanvassSheet::with('status:id,name')
+        $query = CanvassSheet::with('status:id,name')
             ->select('id', 'created_by', 'approved_by', 'status_id', 'created_at')
-            ->latest()
-            ->get()
-            ->map(function ($canvass) {
+            ->orderBy('created_at', 'desc');
+        if ($request->has('limit')) {
+            $perPage = (int) $request->input('limit', 16);
+            $canvasses = $query->paginate($perPage);
+            $data = $canvasses->map(function ($canvass) {
                 return [
                     'id' => $canvass->id,
                     'created_by' => $canvass->created_by,
@@ -30,10 +32,28 @@ class CanvassSheetController extends Controller
                     'status' => $canvass->status->name ?? null,
                 ];
             });
-
-        return response()->json(['data' => $canvasses]);
-
+            return response()->json([
+                'data' => $data,
+                'meta' => [
+                    'total' => $canvasses->total(),
+                    'current_page' => $canvasses->currentPage(),
+                    'last_page' => $canvasses->lastPage(),
+                ],
+            ]);
+        } else {
+            $canvasses = $query->get()->map(function ($canvass) {
+                return [
+                    'id' => $canvass->id,
+                    'created_by' => $canvass->created_by,
+                    'approved_by' => $canvass->approved_by,
+                    'date_created' => $canvass->created_at->toDateString(),
+                    'status' => $canvass->status->name ?? null,
+                ];
+            });
+            return response()->json(['data' => $canvasses]);
+        }
     }
+
  
     // public function store(Request $request)
     // {

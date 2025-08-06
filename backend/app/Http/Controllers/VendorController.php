@@ -7,9 +7,25 @@ use Illuminate\Http\Request;
 
 class VendorController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Vendor::all());
+        $query = Vendor::orderBy('created_at', 'desc');
+
+        if ($request->has('limit')) {
+            $perPage = (int) $request->input('limit', 16);
+            $vendors = $query->paginate($perPage);
+
+            return response()->json([
+                'data' => $vendors->items(),
+                'meta' => [
+                    'total' => $vendors->total(),
+                    'current_page' => $vendors->currentPage(),
+                    'last_page' => $vendors->lastPage(),
+                ],
+            ]);
+        }
+
+        return response()->json(['data' => $query->get()]);
     }
 
     public function store(Request $request)

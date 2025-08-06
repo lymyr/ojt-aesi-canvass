@@ -160,10 +160,15 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
   }, [initialData, isEditing, editClicked]);
 
   const fetchVendors = async () => {
-    const res = await axios.get("/api/vendors");
-    setAllVendorData(res.data);
-    setVendorSuggestions(res.data.map(v => v.name));
-    return res.data;
+    const res = await axios.get("/api/items");
+    const list = Array.isArray(res.data)
+      ? res.data
+      : Array.isArray(res.data.data)
+        ? res.data.data
+        : [];
+    setAllItemData(list);
+    setItemSuggestions(list.map(i => i.description));
+    return list;
   };
 
   const fetchItems = async () => {

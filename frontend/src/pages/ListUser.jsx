@@ -5,29 +5,38 @@ import Paginate from "../components/Paginate";
 import FormUser from "../components/FormUser";
 import s from "./listActions.module.css";
 
-import axios from "../axios"; // assuming this is your axios setup
+import axios from "../axios";
 
 function ListUser({ setTitle }) {
   const [showPopup, setShowPopup] = useState(false);
-  const [users, setUsers] = useState([]); // for dynamic list
+  const [users, setUsers] = useState([]);
+  const [page, setPage] = useState(1); // ✅ for pagination
+  const [totalPages, setTotalPages] = useState(1); // ✅ to limit navigation
 
   useEffect(() => {
     setTitle("Users List");
-    fetchUsers();
   }, [setTitle]);
 
-  const fetchUsers = () => {
-    axios.get("/api/users")
-      .then(res => setUsers(res.data))
-      .catch(err => console.error("Failed to fetch users:", err));
+  useEffect(() => {
+    fetchUsers(page);
+  }, [page]);
+
+  const fetchUsers = async (page = 1) => {
+    try {
+      const res = await axios.get(`/api/users?page=${page}&limit=10`);
+      const { data, meta } = res.data;
+      setUsers(data);
+      setTotalPages(meta.last_page);
+    } catch (err) {
+      console.error("Failed to fetch users:", err);
+    }
   };
 
   const handleSaveUser = async (data) => {
     try {
-      const response = await axios.post("/api/users", data);
-      console.log("User added:", response.data.user);
+      await axios.post("/api/users", data);
       setShowPopup(false);
-      fetchUsers(); // refresh list
+      fetchUsers(page); // Refresh current page
     } catch (err) {
       console.error("Error adding user:", err.response?.data || err.message);
       alert("Failed to add user. Please check for duplicate username or validation errors.");
@@ -44,24 +53,23 @@ function ListUser({ setTitle }) {
       <ListView
         columns={["ID", "Username", "Password", "Role"]}
         rows={users.map(user => ({
-          "ID": user.id,
+          ID: user.id,
           Username: user.username,
           Password: "••••••••",
           Role: user.role.charAt(0).toUpperCase() + user.role.slice(1),
         }))}
       />
 
-      <Paginate />
+      <Paginate page={page} setPage={setPage} totalPages={totalPages} />
 
-     {showPopup && (
+      {showPopup && (
         <FormUser
           onClose={() => setShowPopup(false)}
-          refreshUsers={fetchUsers}
+          refreshUsers={() => fetchUsers(page)}
         />
       )}
     </div>
   );
 }
-
 
 export default ListUser;

@@ -9,11 +9,13 @@ import axios from "../axios";
 function ListMeasure({ setTitle }) {
   const [showForm, setShowForm] = useState(false);
   const [measures, setMeasures] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchUoms = async () => {
+  const fetchUoms = async (page = 1) => {
     try {
-      const response = await axios.get("/api/uoms");
-      const data = response.data;
+      const response = await axios.get(`/api/uoms?limit=16&page=${page}`);
+      const { data, meta } = response.data;
 
       const formatted = data.map((uom) => ({
         ID: uom.id,
@@ -22,6 +24,7 @@ function ListMeasure({ setTitle }) {
       }));
 
       setMeasures(formatted);
+      setTotalPages(meta?.last_page || 1);
     } catch (error) {
       console.error("Error fetching UoMs:", error);
     }
@@ -29,12 +32,15 @@ function ListMeasure({ setTitle }) {
 
   useEffect(() => {
     setTitle("Units of Measure List");
-    fetchUoms();
   }, [setTitle]);
+
+  useEffect(() => {
+    fetchUoms(page);
+  }, [page]);
 
   const handleFormClose = (shouldRefresh) => {
     setShowForm(false);
-    if (shouldRefresh) fetchUoms(); // Reload after adding
+    if (shouldRefresh) fetchUoms(page); // Refresh same page
   };
 
   return (
@@ -49,7 +55,7 @@ function ListMeasure({ setTitle }) {
         rows={measures}
       />
 
-      <Paginate />
+      <Paginate page={page} setPage={setPage} totalPages={totalPages} />
 
       {showForm && <FormMeasure onClose={handleFormClose} />}
     </div>

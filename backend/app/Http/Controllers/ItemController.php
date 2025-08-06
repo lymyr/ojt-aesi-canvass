@@ -8,10 +8,24 @@ use App\Models\Uom;
 
 class ItemController extends Controller
 {
-    public function index()
+   public function index(Request $request)
     {
-        $items = Item::with('uom:id,id,abbreviation')->get();
-        return response()->json($items);
+        $query = Item::with('uom:id,id,abbreviation')->orderBy('created_at', 'desc');
+
+        if ($request->has('limit')) {
+            $perPage = (int) $request->input('limit', 16);
+            $paginated = $query->paginate($perPage);
+
+            return response()->json([
+                'data' => $paginated->items(),
+                'meta' => [
+                    'total' => $paginated->total(),
+                    'current_page' => $paginated->currentPage(),
+                    'last_page' => $paginated->lastPage(),
+                ],
+            ]);
+        }
+        return response()->json(['data' => $query->get()]);
     }
 
     public function store(Request $request)

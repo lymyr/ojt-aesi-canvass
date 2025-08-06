@@ -4,27 +4,34 @@ import ListView from "../components/ListView";
 import Paginate from "../components/Paginate";
 import FormVendor from "../components/FormVendor";
 import s from "./listActions.module.css";
-import axios from "../axios"; // 👈 Import shared Axios instance
+import axios from "../axios";
 
 function ListVendor({ setTitle }) {
   const [showPopup, setShowPopup] = useState(false);
   const [vendors, setVendors] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // 👉 Move fetch logic into its own function
-  const fetchVendors = () => {
-    axios.get("/api/vendors")
-      .then((res) => {
-        setVendors(res.data);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch vendors:", err);
-      });
+  const fetchVendors = async (page = 1) => {
+    try {
+      const res = await axios.get(`/api/vendors?limit=16&page=${page}`);
+      const data = res.data?.data ?? [];
+      const meta = res.data?.meta ?? {};
+
+      setVendors(data);
+      setTotalPages(meta.last_page ?? 1);
+    } catch (err) {
+      console.error("Failed to fetch vendors:", err);
+    }
   };
 
   useEffect(() => {
     setTitle("Vendors List");
-    fetchVendors(); // fetch on mount
   }, [setTitle]);
+
+  useEffect(() => {
+    fetchVendors(page);
+  }, [page]);
 
   return (
     <div className={s.container}>
@@ -45,14 +52,14 @@ function ListVendor({ setTitle }) {
         }))}
       />
 
-      <Paginate />
+      <Paginate page={page} setPage={setPage} totalPages={totalPages} />
 
       {showPopup && (
         <FormVendor
           isEditing={false}
           onClose={() => {
             setShowPopup(false);
-            fetchVendors(); // ✅ Re-fetch when closing the modal
+            fetchVendors(page);
           }}
         />
       )}

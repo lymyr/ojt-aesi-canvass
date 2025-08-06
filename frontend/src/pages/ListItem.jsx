@@ -9,25 +9,29 @@ import axios from "../axios";
 function ListItem({ setTitle }) {
   const [showForm, setShowForm] = useState(false);
   const [items, setItems] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const fetchItems = async (page = 1) => {
+    try {
+      const res = await axios.get(`/api/items?limit=16&page=${page}`);
+      const data = res.data?.data ?? [];
+      const meta = res.data?.meta;
+
+      setItems(data);
+      setTotalPages(meta?.last_page ?? 1);
+    } catch (err) {
+      console.error("Failed to fetch items", err);
+    }
+  };
 
   useEffect(() => {
     setTitle("Items List");
-
-    axios.get("/api/items")
-      .then(res => setItems(res.data))
-      .catch(err => console.error("Failed to fetch items", err));
   }, [setTitle]);
 
-  const handleAddItem = async (data) => {
-    try {
-      const res = await axios.post("/api/items", data);
-      const newItem = res.data;
-      setItems(prev => [...prev, newItem]);
-      setShowForm(false);
-    } catch (err) {
-      console.error("Failed to save item", err);
-    }
-  };
+  useEffect(() => {
+    fetchItems(page);
+  }, [page]);
 
   return (
     <div className={s.container}>
@@ -40,7 +44,10 @@ function ListItem({ setTitle }) {
         <FormItem
           isEditing={false}
           onClose={() => setShowForm(false)}
-          onSuccess={(newItem) => setItems(prev => [...prev, newItem])}
+          onSuccess={(newItem) => {
+            // refresh current page
+            fetchItems(page);
+          }}
         />
       )}
 
@@ -54,7 +61,7 @@ function ListItem({ setTitle }) {
         }))}
       />
 
-      <Paginate />
+      <Paginate page={page} setPage={setPage} totalPages={totalPages} />
     </div>
   );
 }

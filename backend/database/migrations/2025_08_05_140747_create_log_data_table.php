@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('log_data', function (Blueprint $table) {
             $table->id();
-            $table->string('ref_table'); // e.g. 'canvass_sheets', 'vendors', etc.
+            $table->string('ref_table'); // table names
             $table->unsignedBigInteger('ref_id'); // ID of the record that was changed
-            $table->string('created_by'); // denormalized for simplicity
-            $table->json('before')->nullable(); // before change (nullable for new entries)
-            $table->json('after')->nullable();  // after change (nullable for deletes)
-            $table->timestamps(); // created_at = timestamp
+            $table->string('created_by');
+            $table->json('before')->nullable();
+            $table->json('after')->nullable();
+            $table->timestamps();
         });
     }
 

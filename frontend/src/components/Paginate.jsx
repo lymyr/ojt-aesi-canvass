@@ -1,16 +1,7 @@
 import React, { useState } from "react";
 import s from "./Paginate.module.css";
 
-function Paginate({ totalPages = 10 }) {
-  const [page, setPage] = useState(1);
-
-  const handlePrev = () => {
-    if (page > 1) setPage(page - 1);
-  };
-
-  const handleNext = () => {
-    if (page < totalPages) setPage(page + 1);
-  };
+function Paginate({ page, setPage, totalPages = 10 }) {
 
   const handlePageClick = (p) => {
     if (p !== page) setPage(p);
