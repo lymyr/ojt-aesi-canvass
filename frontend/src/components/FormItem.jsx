@@ -188,7 +188,7 @@ function FormItem({ isEditing = false, onClose, itemData = {}, onSuccess }) {
       {showUomForm && (
         <FormMeasure
           onClose={handleUomFormClose}
-          initialValue={pendingUom}
+          uomData={{ unit: pendingUom }}
         />
       )}
     </div>
