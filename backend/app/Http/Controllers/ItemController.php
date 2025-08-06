@@ -46,4 +46,14 @@ class ItemController extends Controller
 
         return response()->json($item->load('uom'), 201);
     }
+
+    public function getItem($id)
+    {
+        $item = Item::with('uom')->find($id);
+        if (!$item) {
+            return response()->json(['message' => 'Item not found'], 404);
+        }
+        return response()->json($item);
+    }
+
 }

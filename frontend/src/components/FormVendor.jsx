@@ -1,18 +1,28 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./FormItem.module.css";
 import axios from "../axios";
 
 function FormVendor({ isEditing = false, onClose, vendorData = {} }) {
   const [formData, setFormData] = useState({
-    name: vendorData.name || "",
-    address: vendorData.address || "",
-    tin: vendorData.tin || "",
-    remarks: vendorData.remarks || "",
+    name: "",
+    address: "",
+    tin: "",
+    remarks: "",
   });
+
+  useEffect(() => {
+    setFormData({
+      id: vendorData.id || null,
+      name: vendorData.name || "",
+      address: vendorData.address || "",
+      tin: vendorData.tin || "",
+      remarks: vendorData.remarks || "",
+      active: vendorData.active ?? 1
+    });
+  }, [vendorData]);
 
   const [isEditMode, setIsEditMode] = useState(!isEditing);
   const [errors, setErrors] = useState({});
-  const [saving, setSaving] = useState(false);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -29,19 +39,27 @@ function FormVendor({ isEditing = false, onClose, vendorData = {} }) {
 
   const handleSubmit = async () => {
     if (!validate()) return;
+      try {
+      const payload = {
+        name: formData.name,
+        address: formData.address,
+        tin: formData.tin,
+        remarks: formData.remarks,
+        active: formData.active,
+      };
 
-    try {
-      setSaving(true);
-      await axios.post("/api/vendors", {
-        ...formData,
-        active: true, // default to active
-      });
-      onClose(); // Close popup after saving
-    } catch (error) {
-      console.error("Error saving vendor:", error);
-      alert("Failed to save vendor.");
-    } finally {
-      setSaving(false);
+      if (isEditing && formData.id) {
+        console.log("updating");
+        await axios.put(`/api/vendors/${formData.id}`, payload);
+      } else {
+        console.log("creating");
+        await axios.post("/api/vendors", { ...payload, active: true });
+      }
+
+      onClose();
+    } catch (err) {
+      console.error("Failed to save vendor:", err);
+      alert("Error saving vendor.");
     }
   };
 
@@ -104,18 +122,31 @@ function FormVendor({ isEditing = false, onClose, vendorData = {} }) {
           />
         </div>
 
+        {isEditing && (
+          <div className={`${styles.formGroup} ${styles.checkboxGroup}`}>
+            <input
+              type="checkbox"
+              checked={formData.active === 1}
+              onChange={(e) => handleChange("active", e.target.checked ? 1 : 0)}
+              disabled={!isEditMode}
+              id="checkbox"
+            />
+            <label htmlFor="checkbox">Active</label>
+          </div>
+        )}
+
         <div className={styles.actions}>
           <button className={styles.secondary} onClick={onClose}>
             {isEditing && isEditMode ? "Cancel" : "Close"}
           </button>
 
           {!isEditing ? (
-            <button className={styles.primary} onClick={handleSubmit} disabled={saving}>
-              {saving ? "Saving..." : "Add"}
+            <button className={styles.primary} onClick={handleSubmit}>
+              Add
             </button>
           ) : isEditMode ? (
-            <button className={styles.primary} onClick={handleSubmit} disabled={saving}>
-              {saving ? "Saving..." : "Save"}
+            <button className={styles.primary} onClick={handleSubmit}>
+              Save
             </button>
           ) : (
             <button className={styles.primary} onClick={() => setIsEditMode(true)}>Edit</button>

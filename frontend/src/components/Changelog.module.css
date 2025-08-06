@@ -98,6 +98,12 @@
 .after .fields > * {
     background-color: rgb(180, 217, 180);
 }
+.before .fields span {
+    color: rgb(105, 62, 62);
+}
+.after .fields span {
+    color: rgb(50, 86, 50);
+}
 
 .noChanges {
     text-align: center;

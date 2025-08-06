@@ -160,23 +160,39 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
   }, [initialData, isEditing, editClicked]);
 
   const fetchVendors = async () => {
+    try {
+      const res = await axios.get("/api/vendors");
+      const list = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data.data)
+          ? res.data.data
+          : [];
+      setAllVendorData(list);
+      setVendorSuggestions(list.map(v => v.name));
+      return list;
+    } catch (err) {
+      return [];
+    }
+  };
+
+  const fetchItems = async () => {
+  try {
     const res = await axios.get("/api/items");
     const list = Array.isArray(res.data)
       ? res.data
       : Array.isArray(res.data.data)
         ? res.data.data
         : [];
+
     setAllItemData(list);
     setItemSuggestions(list.map(i => i.description));
     return list;
-  };
+  } catch (err) {
+    console.error("❌ Failed to fetch items:", err);
+    return [];
+  }
+};
 
-  const fetchItems = async () => {
-    const res = await axios.get("/api/items");
-    setAllItemData(res.data);
-    setItemSuggestions(res.data.map(i => i.description));
-    return res.data;
-  };
 
   const fetchLatestQuote = async (itemDesc, vendorName) => {
     try {

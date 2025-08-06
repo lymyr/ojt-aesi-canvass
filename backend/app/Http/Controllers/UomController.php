@@ -37,4 +37,9 @@ class UomController extends Controller
 
         return response()->json($uom, 201);
     }
+
+    public function getUom($id)
+    {
+        return Uom::findOrFail($id);
+    }
 }

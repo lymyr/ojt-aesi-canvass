@@ -1,13 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./FormItem.module.css"; // shared styles
 import axios from "../axios";
 
 function FormUser({ onClose, userData = {}, isEditing = false, refreshUsers }) {
   const [formData, setFormData] = useState({
-    username: userData.username || "",
-    password: userData.password || "",
-    isApprover: userData.isApprover || false,
+    username: "",
+    password: "",
+    isApprover: false,
   });
+
+  useEffect(() => {
+    setFormData({
+      username: userData.username || "",
+      password: "",
+      isApprover: userData.isApprover || false,
+    });
+  }, [userData]);
 
   const [isEditMode, setIsEditMode] = useState(!isEditing);
   const [errors, setErrors] = useState({});
@@ -54,7 +62,7 @@ function FormUser({ onClose, userData = {}, isEditing = false, refreshUsers }) {
             value={formData.username}
             onChange={(e) => handleChange("username", e.target.value)}
             disabled={!isEditMode}
-            placeholder="Enter username"
+            placeholder="Enter a unique username"
           />
           {errors.username && <small style={{ color: "red" }}>{errors.username}</small>}
         </div>
@@ -68,7 +76,7 @@ function FormUser({ onClose, userData = {}, isEditing = false, refreshUsers }) {
             value={formData.password}
             onChange={(e) => handleChange("password", e.target.value)}
             disabled={!isEditMode}
-            placeholder="Enter password"
+            placeholder="Enter your password"
           />
           {errors.password && <small style={{ color: "red" }}>{errors.password}</small>}
         </div>

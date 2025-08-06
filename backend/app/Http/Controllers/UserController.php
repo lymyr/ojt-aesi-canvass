@@ -66,4 +66,9 @@ class UserController extends Controller
             'user' => $user->only('id', 'username', 'role'),
         ]);
     }
+
+    public function getUser(User $user)
+    {
+        return response()->json($user->only('id', 'username', 'role'));
+    }
 }

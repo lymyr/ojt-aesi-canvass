@@ -11,6 +11,8 @@ function ListMeasure({ setTitle }) {
   const [measures, setMeasures] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedMeasure, setSelectedMeasure] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const fetchUoms = async (page = 1) => {
     try {
@@ -40,8 +42,23 @@ function ListMeasure({ setTitle }) {
 
   const handleFormClose = (shouldRefresh) => {
     setShowForm(false);
-    if (shouldRefresh) fetchUoms(page); // Refresh same page
+    setSelectedMeasure(null);
+    setIsEditMode(false);
+    if (shouldRefresh) fetchUoms(page);
   };
+
+  const handleUomClick = async (id) => {
+    try {
+      const res = await axios.get(`/api/uoms/${id}`);
+      setSelectedMeasure(res.data);
+      setIsEditMode(true);
+      setShowForm(true);
+    } catch (err) {
+      console.error("Failed to fetch UoM:", err);
+      alert("Error loading UoM data.");
+    }
+  };
+
 
   return (
     <div className={s.container}>
@@ -53,11 +70,16 @@ function ListMeasure({ setTitle }) {
       <ListView
         columns={["ID", "Unit of Measure", "Abbreviation"]}
         rows={measures}
+        onRowClick={(row) => handleUomClick(row.ID)}
       />
 
       <Paginate page={page} setPage={setPage} totalPages={totalPages} />
 
-      {showForm && <FormMeasure onClose={handleFormClose} />}
+      {showForm && <FormMeasure
+          onClose={handleFormClose}
+          uomData={selectedMeasure || {}}
+          isEditing={isEditMode}
+        />}
     </div>
   );
 }

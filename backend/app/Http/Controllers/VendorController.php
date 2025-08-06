@@ -43,4 +43,26 @@ class VendorController extends Controller
         ]);
         return response()->json($vendor, 201);
     }
+
+    public function getVendor($id)
+    {
+        return Vendor::findOrFail($id);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $vendor = Vendor::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|unique:vendors,name,' . $id,
+            'address' => 'required|string',
+            'tin' => 'required|string',
+            'remarks' => 'nullable|string',
+            'active' => 'required|boolean',
+        ]);
+
+        $vendor->update($validated);
+
+        return response()->json($vendor);
+    }
 }

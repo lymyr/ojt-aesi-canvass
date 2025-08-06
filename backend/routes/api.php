@@ -20,16 +20,22 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/users', [UserController::class, 'index']);
     Route::post('/users', [UserController::class, 'store']);
+    Route::get('/users/{user}', [UserController::class, 'getUser']);
     Route::put('/users/{user}', [UserController::class, 'update']); // to do
 
     Route::get('/vendors', [VendorController::class, 'index']);
     Route::post('/vendors', [VendorController::class, 'store']);
+    Route::get('/vendors/{id}', [VendorController::class, 'getVendor']);
+    Route::put('/vendors/{id}', [VendorController::class, 'update']);
 
     Route::get('/items', [ItemController::class, 'index']);
     Route::post('/items', [ItemController::class, 'store']);
+    Route::get('/items/{id}', [ItemController::class, 'getItem']);
+
 
     Route::get('/uoms', [UomController::class, 'index']);
     Route::post('/uoms', [UomController::class, 'store']);
+    Route::get('/uoms/{id}', [UomController::class, 'getUom']);
 
     Route::get('/canvass-sheets', [CanvassSheetController::class, 'index']);
     Route::post('/canvass-sheets', [CanvassSheetController::class, 'save']);

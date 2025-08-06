@@ -11,6 +11,8 @@ function ListVendor({ setTitle }) {
   const [vendors, setVendors] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedVendor, setSelectedVendor] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const fetchVendors = async (page = 1) => {
     try {
@@ -33,6 +35,18 @@ function ListVendor({ setTitle }) {
     fetchVendors(page);
   }, [page]);
 
+  const handleVendorClick = async (vendorId) => {
+    try {
+      const res = await axios.get(`/api/vendors/${vendorId}`);
+      setSelectedVendor(res.data);
+      setIsEditMode(true);
+      setShowPopup(true);
+    } catch (err) {
+      console.error("Failed to fetch vendor:", err);
+      alert("Error loading vendor data.");
+    }
+  };
+
   return (
     <div className={s.container}>
       <div className={s.listActions}>
@@ -50,15 +64,19 @@ function ListVendor({ setTitle }) {
           Remarks: v.remarks || "",
           Active: v.active ? "Yes" : "No",
         }))}
+        onRowClick={(row) => handleVendorClick(row.ID)}
       />
 
       <Paginate page={page} setPage={setPage} totalPages={totalPages} />
 
       {showPopup && (
         <FormVendor
-          isEditing={false}
+          isEditing={isEditMode}
+          vendorData={selectedVendor || {}}
           onClose={() => {
             setShowPopup(false);
+            setSelectedVendor(null);
+            setIsEditMode(false);
             fetchVendors(page);
           }}
         />

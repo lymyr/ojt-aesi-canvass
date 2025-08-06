@@ -11,6 +11,7 @@ function ListItem({ setTitle }) {
   const [items, setItems] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const fetchItems = async (page = 1) => {
     try {
@@ -33,6 +34,17 @@ function ListItem({ setTitle }) {
     fetchItems(page);
   }, [page]);
 
+  const handleRowClick = async (row) => {
+    try {
+      const res = await axios.get(`/api/items/${row.ID}`);
+      setSelectedItem(res.data);
+      setShowForm(true);
+    } catch (err) {
+      console.error("Failed to fetch item by ID", err);
+      alert("Error fetching item details.");
+    }
+  };
+
   return (
     <div className={s.container}>
       <div className={s.listActions}>
@@ -42,14 +54,16 @@ function ListItem({ setTitle }) {
 
       {showForm && (
         <FormItem
-          isEditing={false}
-          onClose={() => setShowForm(false)}
-          onSuccess={(newItem) => {
-            // refresh current page
-            fetchItems(page);
+          isEditing={!!selectedItem}
+          itemData={selectedItem ?? undefined}
+          onClose={() => {
+            setShowForm(false);
+            setSelectedItem(null);
           }}
+          onSuccess={() => fetchItems(page)}
         />
       )}
+
 
       <ListView
         columns={["ID", "Description", "Unit of Measure", "Remarks"]}
@@ -59,6 +73,7 @@ function ListItem({ setTitle }) {
           "Unit of Measure": item.uom?.abbreviation || "N/A",
           Remarks: item.remarks || "",
         }))}
+        onRowClick={handleRowClick}
       />
 
       <Paginate page={page} setPage={setPage} totalPages={totalPages} />

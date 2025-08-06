@@ -5,28 +5,41 @@ import DropdownInput from "./DropdownInput";
 import FormMeasure from "./FormMeasure";
 
 function FormItem({ isEditing = false, onClose, itemData = {}, onSuccess }) {
+  const safeItem = itemData || {};
   const [formData, setFormData] = useState({
-    description: itemData.description || "",
-    unit: itemData.unit_of_measure?.abbreviation || "",
-    unit_id: itemData.unit_id || null,
-    remarks: itemData.remarks || "",
+    description: safeItem.description || "",
+    unit: safeItem.uom?.unit || "",
+    unit_id: safeItem.unit_id || null,
+    remarks: safeItem.remarks || "",
   });
-  
+
+  useEffect(() => {
+    const safeItem = itemData || {};
+    setFormData({
+      description: safeItem.description || "",
+      unit: safeItem.uom?.unit || "",
+      unit_id: safeItem.unit_id || null,
+      remarks: safeItem.remarks || "",
+    });
+  }, [itemData?.id]);
+
+
+
   const [isEditMode, setIsEditMode] = useState(!isEditing);
   const [errors, setErrors] = useState({});
   const [uomSuggestions, setUomSuggestions] = useState([]);
   const [uomList, setUomList] = useState([]);
 
   const [showUomForm, setShowUomForm] = useState(false);
-  const [pendingUom, setPendingUom] = useState(""); // 👈 hold the input value
+  const [pendingUom, setPendingUom] = useState("");
 
-  // Change fetchUOMs
   const fetchUOMs = async () => {
     try {
       const res = await axios.get("/api/uoms");
-      setUomList(res.data);
-      setUomSuggestions(res.data.map((u) => u.unit));
-      return res.data; // ✅ return fresh data
+    const data = res.data?.data ?? [];
+    setUomList(data);
+    setUomSuggestions(data.map((u) => u.unit));
+    return data;
     } catch (err) {
       console.error("Failed to load UOMs:", err);
       return [];
@@ -85,14 +98,14 @@ function FormItem({ isEditing = false, onClose, itemData = {}, onSuccess }) {
 
 
   const handleMissingUOM = (val) => {
-    setPendingUom(val);        // store the input
-    setShowUomForm(true);      // show form popup
+    setPendingUom(val);
+    setShowUomForm(true);
   };
 
   const handleUomFormClose = async (didAdd) => {
     setShowUomForm(false);
     if (didAdd) {
-      const updatedUOMs = await fetchUOMs(); // ✅ wait for new list
+      const updatedUOMs = await fetchUOMs();
       const match = updatedUOMs.find((u) => u.unit.toLowerCase() === pendingUom.toLowerCase());
 
       setFormData((prev) => ({
@@ -175,7 +188,7 @@ function FormItem({ isEditing = false, onClose, itemData = {}, onSuccess }) {
       {showUomForm && (
         <FormMeasure
           onClose={handleUomFormClose}
-          initialValue={pendingUom} // 👈 pass initial unit value
+          initialValue={pendingUom}
         />
       )}
     </div>

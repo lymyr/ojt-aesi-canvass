@@ -139,7 +139,7 @@ function Changelog({ refTable = 'canvass_sheets', id }) {
                                     <p className={s.description}>Item #{diff.item_id}</p>
                                     {diff.qty_needed !== undefined && (
                                         <div className={s.fields}>
-                                            <p>Needed Amount: {diff.qty_needed}</p>
+                                            <p><span>Needed Amount:</span> {diff.qty_needed}</p>
                                         </div>
                                     )}
                                     {diff.vendors.length > 0 && (
@@ -150,9 +150,7 @@ function Changelog({ refTable = 'canvass_sheets', id }) {
                                                     <div className={s.fields}>
                                                         {Object.entries(vendor.fields).map(([key, value]) => (
                                                             <p key={key}>
-                                                                {key === 'remarks' && value === null
-                                                                    ? `${key}: N/A`
-                                                                    : `${key}: ${value}`}
+                                                                <span>{key}:</span> {key === 'remarks' && value === null ? 'N/A' : value}
                                                             </p>
                                                         ))}
                                                     </div>

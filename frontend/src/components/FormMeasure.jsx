@@ -1,10 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./FormItem.module.css";
 import axios from "../axios";
 
-function FormMeasure({ onClose, initialValue = "" }) {
-  const [formData, setFormData] = useState({ unit: initialValue, abbreviation: "" });
+function FormMeasure({ onClose, uomData = {}, isEditing = false }) {
+  const [formData, setFormData] = useState({ unit: "", abbreviation: "" });
   const [errors, setErrors] = useState({});
+
+  // Autofill when uomData changes
+  useEffect(() => {
+    setFormData({
+      unit: uomData.unit || "",
+      abbreviation: uomData.abbreviation || "",
+    });
+  }, [uomData]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -20,9 +28,14 @@ function FormMeasure({ onClose, initialValue = "" }) {
 
   const handleSubmit = async () => {
     if (!validate()) return;
+
     try {
-      await axios.post("/api/uoms", formData);
-      onClose(true); // tell parent to refresh list
+      if (isEditing && uomData?.id) {
+        await axios.put(`/api/uoms/${uomData.id}`, formData);
+      } else {
+        await axios.post("/api/uoms", formData);
+      }
+      onClose(true);
     } catch (err) {
       console.error("Failed to save unit:", err);
       alert("Failed to save unit of measure.");
@@ -32,7 +45,7 @@ function FormMeasure({ onClose, initialValue = "" }) {
   return (
     <div className={styles.modal}>
       <div className={styles.formContainer}>
-        <h2 className={styles.header}>Add Unit</h2>
+        <h2 className={styles.header}>{isEditing ? "Edit Unit" : "Add Unit"}</h2>
 
         <div className={styles.formGroup}>
           <label>
@@ -62,10 +75,10 @@ function FormMeasure({ onClose, initialValue = "" }) {
 
         <div className={styles.actions}>
           <button className={styles.secondary} onClick={() => onClose(false)}>
-            Close
+            Cancel
           </button>
           <button className={styles.primary} onClick={handleSubmit}>
-            Add
+            {isEditing ? "Save" : "Add"}
           </button>
         </div>
       </div>
