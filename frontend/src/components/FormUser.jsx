@@ -13,9 +13,10 @@ function FormUser({ onClose, userData = {}, isEditing = false, refreshUsers }) {
     setFormData({
       username: userData.username || "",
       password: "",
-      isApprover: userData.isApprover || false,
+      isApprover: userData.role === "approver", // convert role to boolean
     });
   }, [userData]);
+
 
   const [isEditMode, setIsEditMode] = useState(!isEditing);
   const [errors, setErrors] = useState({});
@@ -36,15 +37,34 @@ function FormUser({ onClose, userData = {}, isEditing = false, refreshUsers }) {
     if (!validate()) return;
 
     try {
-      await axios.post("/api/users", formData);
-      refreshUsers?.(); // call parent refresh if provided
-      onClose(); // close modal
+      const payload = {
+        username: formData.username,
+        isApprover: formData.isApprover,
+      };
+
+      if (formData.password.trim()) {
+        payload.password = formData.password;
+      }
+
+      if (isEditing) {
+        await axios.put(`/api/users/${userData.id}`, payload);
+      } else {
+        await axios.post("/api/users", {
+          ...payload,
+          password: formData.password, // always required on create
+        });
+      }
+
+      refreshUsers?.();
+      onClose();
     } catch (err) {
       const msg = err.response?.data?.message || "Failed to save user";
       alert(msg);
       console.error("Save error:", err);
     }
   };
+
+
 
   return (
     <div className={styles.modal}>
@@ -76,7 +96,7 @@ function FormUser({ onClose, userData = {}, isEditing = false, refreshUsers }) {
             value={formData.password}
             onChange={(e) => handleChange("password", e.target.value)}
             disabled={!isEditMode}
-            placeholder="Enter your password"
+            placeholder={isEditing ? "Leave blank to keep current password" : "Enter your password"}
           />
           {errors.password && <small style={{ color: "red" }}>{errors.password}</small>}
         </div>
