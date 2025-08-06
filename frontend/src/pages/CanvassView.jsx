@@ -82,7 +82,7 @@ function CanvassView({mode = "create", setTitle, userRole = "maker", status = "p
           remarks: null
         });
 
-        alert("Canvass approved.");
+        alert("Canvass sheet has been successfully approved.");
         navigate("/canvass");
       } catch (error) {
         console.error("Approve failed:", error);
@@ -103,7 +103,7 @@ function CanvassView({mode = "create", setTitle, userRole = "maker", status = "p
         remarks: reason,
       });
 
-      alert("Canvass rejected.");
+      alert("Canvass sheet has been successfully rejected.");
       navigate("/canvass");
     } catch (error) {
       console.error("Reject failed:", error);
@@ -194,8 +194,16 @@ function CanvassView({mode = "create", setTitle, userRole = "maker", status = "p
         <div className={s.detailContainer}>
             {canvassData && (
                 <div>
-                    <p><span>Created by: </span>{canvassData.created_by}</p>
-                    <p><span>Create Date: </span>{new Date(canvassData.created_at).toLocaleString()}</p>
+                    <div>
+                      <p><span>Created by: </span>{canvassData.created_by}</p>
+                      <p><span>Create date: </span>{new Date(canvassData.created_at).toLocaleString()}</p>
+                    </div>
+                    {canvassData.status == "Approved" && (
+                      <div>
+                        <p><span>Approved by: </span>{canvassData.approved_by}</p>
+                        <p><span>Approved date: </span>{new Date(canvassData.updated_at).toLocaleString()}</p>
+                      </div>
+                    )}
                 </div>
             )}
         </div>
@@ -222,7 +230,7 @@ function CanvassView({mode = "create", setTitle, userRole = "maker", status = "p
         {canvassData && canvassData.remarks && (
           <div className={s.remarks}>
             <p>Rejection remarks</p>
-            <p>{canvassData.remarks}</p>
+            <p><span>{canvassData.approved_by}:</span> {canvassData.remarks}</p>
           </div>
           )}
       </div>

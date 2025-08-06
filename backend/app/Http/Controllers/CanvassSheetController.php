@@ -18,13 +18,14 @@ class CanvassSheetController extends Controller
     public function index()
     {
         $canvasses = CanvassSheet::with('status:id,name')
-            ->select('id', 'created_by', 'status_id', 'created_at')
+            ->select('id', 'created_by', 'approved_by', 'status_id', 'created_at')
             ->latest()
             ->get()
             ->map(function ($canvass) {
                 return [
                     'id' => $canvass->id,
                     'created_by' => $canvass->created_by,
+                    'approved_by' => $canvass->approved_by,
                     'date_created' => $canvass->created_at->toDateString(),
                     'status' => $canvass->status->name ?? null,
                 ];
@@ -146,6 +147,7 @@ class CanvassSheetController extends Controller
             'created_at' => $canvass->created_at,
             'updated_at' => $canvass->updated_at,
             'created_by' => $canvass->created_by,
+            'approved_by' => $canvass->approved_by,
             'remarks' => $canvass->remarks,
             'status' => $canvass->status->name,
             'items' => $canvass->items->map(function ($ci) {
@@ -252,6 +254,7 @@ class CanvassSheetController extends Controller
             else if ($user->role == "approver") {
                 $canvass->remarks = $validated['remarks'];
                 $canvass->status_id = $validated['status_id'];
+                $canvass->approved_by = $user->username;
                 $canvass->save();
             }
 
