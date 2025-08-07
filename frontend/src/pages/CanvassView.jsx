@@ -132,12 +132,18 @@ function CanvassView({mode = "create", setTitle, userRole = "maker", status = "p
     if (userRole !== "approver") return;
 
     const reason = prompt("Enter reason for rejection:");
-    if (!reason) return;
+    if (!reason) return alert("Rejection unsuccessful: please input a reason for rejection");
+
+    const payload = new FormData();
+    payload.append('_method', 'put');
+    payload.append('canvass_data', JSON.stringify({
+      status_id: 3,
+      remarks: reason
+    }));
 
     try {
-      const response = await axios.put(`/api/canvass-sheets/${id}`, {
-        status_id: 3,
-        remarks: reason,
+      const response = await axios.post(`/api/canvass-sheets/${id}`, payload, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       alert("Canvass sheet has been successfully rejected.");

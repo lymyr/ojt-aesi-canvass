@@ -117,7 +117,7 @@
     background-color: rgb(211, 118, 118);
     border: 1px solid rgb(211, 118, 118);
     box-shadow:1px 1px 3px rgb(79, 79, 79);
-    transition: 150ms;
+    transition: 250ms;
 }
 .table td:has(button) {
     padding: 0;
@@ -126,7 +126,7 @@
 .table tr:has(button:hover) {
     background-color: rgb(209, 181, 98);
     color: rgb(47, 71, 31);
-    transition: 150ms;
+    transition: 250ms;
 }
 
 .table tbody .newAttach td,
@@ -152,4 +152,12 @@
     background-color: rgb(112, 36, 36);
     border: 1px solid rgb(112, 36, 36);
     color: rgb(222, 245, 224);
+}
+
+.table a {
+    color: rgb(74, 108, 93);
+    text-decoration: underline;
+}
+.table a:hover {
+    color: rgb(142, 181, 164);
 }
