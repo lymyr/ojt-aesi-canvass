@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('items', function (Blueprint $table) {
             $table->id();
             $table->string('description')->collation('utf8mb4_unicode_ci')->unique();
-            $table->foreignId('unit_id')->constrained('uoms')->onDelete('cascade'); // foreign key
+            $table->foreignId('unit_id')->constrained('uoms')->onDelete('restrict');
             $table->string('remarks')->nullable();
             $table->timestamps();
         });

@@ -5,7 +5,7 @@ import FormItem from "./FormItem";
 import FormVendor from "./FormVendor";
 import axios from "../axios";
 
-const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initialData=null, status }, ref) => {
+const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initialData=null, status, userRole }, ref) => {
   const [allItemData, setAllItemData] = useState([]);
   const [allVendorData, setAllVendorData] = useState([]);
   const [vendors, setVendors] = useState([""]);
@@ -367,7 +367,7 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
   
   return (
     <>
-      <div className={`${s.masterContainer} ${status === "Approved" ? s.approved : s.notApproved}`}>
+      <div className={`${s.masterContainer} ${userRole != "maker" || status === "Approved" ? s.approved : s.notApproved}`}>
         <div className={s.tableContainer}>
           <table className={s.table}>
             <tbody>

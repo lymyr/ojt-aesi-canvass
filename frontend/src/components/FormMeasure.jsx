@@ -5,8 +5,8 @@ import axios from "../axios";
 function FormMeasure({ onClose, uomData = {}, isEditing = false }) {
   const [formData, setFormData] = useState({ unit: "", abbreviation: "" });
   const [errors, setErrors] = useState({});
+  const [isEditMode, setIsEditMode] = useState(!isEditing);
 
-  // Autofill when uomData changes
   useEffect(() => {
     setFormData({
       unit: uomData.unit || "",
@@ -45,7 +45,9 @@ function FormMeasure({ onClose, uomData = {}, isEditing = false }) {
   return (
     <div className={styles.modal}>
       <div className={styles.formContainer}>
-        <h2 className={styles.header}>{isEditing ? "Edit Unit" : "Add Unit"}</h2>
+        <h2 className={styles.header}>
+          {!isEditing ? "Add Unit" : isEditMode ? "Edit Unit" : "View Unit"}
+        </h2>
 
         <div className={styles.formGroup}>
           <label>
@@ -55,6 +57,7 @@ function FormMeasure({ onClose, uomData = {}, isEditing = false }) {
             type="text"
             value={formData.unit}
             onChange={(e) => handleChange("unit", e.target.value)}
+            disabled={!isEditMode}
             placeholder="e.g. piece, bottle, kilogram"
           />
           {errors.unit && <small style={{ color: "red" }}>{errors.unit}</small>}
@@ -68,6 +71,7 @@ function FormMeasure({ onClose, uomData = {}, isEditing = false }) {
             type="text"
             value={formData.abbreviation}
             onChange={(e) => handleChange("abbreviation", e.target.value)}
+            disabled={!isEditMode}
             placeholder="e.g. pc, btl, kg"
           />
           {errors.abbreviation && <small style={{ color: "red" }}>{errors.abbreviation}</small>}
@@ -75,11 +79,22 @@ function FormMeasure({ onClose, uomData = {}, isEditing = false }) {
 
         <div className={styles.actions}>
           <button className={styles.secondary} onClick={() => onClose(false)}>
-            Cancel
+            {isEditing && isEditMode ? "Cancel" : "Close"}
           </button>
-          <button className={styles.primary} onClick={handleSubmit}>
-            {isEditing ? "Save" : "Add"}
-          </button>
+
+          {!isEditing ? (
+            <button className={styles.primary} onClick={handleSubmit}>
+              Add
+            </button>
+          ) : isEditMode ? (
+            <button className={styles.primary} onClick={handleSubmit}>
+              Save
+            </button>
+          ) : (
+            <button className={styles.primary} onClick={() => setIsEditMode(true)}>
+              Edit
+            </button>
+          )}
         </div>
       </div>
     </div>

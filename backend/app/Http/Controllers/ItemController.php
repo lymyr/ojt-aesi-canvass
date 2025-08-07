@@ -56,4 +56,21 @@ class ItemController extends Controller
         return response()->json($item);
     }
 
+    public function update(Request $request, $id)
+    {
+        $item = Item::findOrFail($id);
+        $validated = $request->validate([
+            'description' => 'required|string|unique:items,description,' . $item->id,
+            'unit_id' => 'required|exists:uoms,id',
+            'remarks' => 'nullable|string',
+        ]);
+
+        $item->description = $validated['description'];
+        $item->unit_id = $validated['unit_id'];
+        $item->remarks = $validated['remarks'] ?? null;
+        $item->save();
+
+        return response()->json($item);
+    }
+
 }

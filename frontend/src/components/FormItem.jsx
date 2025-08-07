@@ -79,16 +79,19 @@ function FormItem({ isEditing = false, onClose, itemData = {}, onSuccess }) {
       alert("Please finish adding the Unit of Measure first.");
       return;
     }
-
     if (!validate()) return;
-    
     try {
       if (!formData.unit_id) {
         alert("Please select a valid Unit of Measure.");
         return;
       }
-      const res = await axios.post("/api/items", formData);
-      if (onSuccess) onSuccess(res.data);
+      if (isEditing) {
+        const res = await axios.put(`/api/items/${itemData.id}`, formData);
+        if (onSuccess) onSuccess(res.data);
+      } else {
+        const res = await axios.post("/api/items", formData);
+        if (onSuccess) onSuccess(res.data);
+      }
       onClose();
     } catch (err) {
       console.error("Error saving item:", err);

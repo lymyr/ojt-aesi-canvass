@@ -42,4 +42,17 @@ class UomController extends Controller
     {
         return Uom::findOrFail($id);
     }
+    
+    public function update(Request $request, $id)
+    {
+        $uom = Uom::findOrFail($id);
+        $validated = $request->validate([
+            'unit' => 'required|string',
+            'abbreviation' => 'required|string',
+        ]);
+        $uom->unit = $validated['unit'];
+        $uom->abbreviation = $validated['abbreviation'];
+        $uom->save();
+        return response()->json($uom);
+    }
 }

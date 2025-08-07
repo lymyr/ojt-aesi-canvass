@@ -226,6 +226,7 @@ function CanvassView({mode = "create", setTitle, userRole = "maker", status = "p
           canvassId={id}
           initialData={isEditMode ? canvassData : null}
           status={canvassData?.status || null}
+          userRole={userRole}
         />
         {canvassData && canvassData.remarks && (
           <div className={s.remarks}>
