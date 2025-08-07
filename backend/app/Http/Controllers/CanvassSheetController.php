@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attachment;
 use App\Models\CanvassItem;
 use App\Models\CanvassItemVendor;
 use Illuminate\Support\Facades\DB;
 use App\Models\CanvassSheet;
 use App\Models\Item;
 use App\Models\Vendor;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CanvassSheetController extends Controller
 {
@@ -91,6 +92,9 @@ class CanvassSheetController extends Controller
             'approved_by' => $canvass->approved_by,
             'remarks' => $canvass->remarks,
             'status' => $canvass->status->name,
+            'attachments' => Attachment::where('ref_table', 'canvass_sheets')
+                            ->where('ref_id', $canvass->id)
+                            ->get(['id', 'file_name', 'path']),
             'items' => $canvass->items->map(function ($ci) {
                 return [
                     'item_id' => $ci->item->id,
@@ -115,7 +119,27 @@ class CanvassSheetController extends Controller
     }
 
     public function save(Request $request, $id = null)
-    {
+    {   
+        $json = null;
+
+        if ($request->has('canvass_data')) {
+            $json = $request->input('canvass_data');
+        } elseif ($request->hasFile('canvass_data')) {
+            $jsonFile = $request->file('canvass_data');
+            $json = file_get_contents($jsonFile->getRealPath());
+        }
+
+        $data = json_decode($json, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return response()->json([
+                'message' => 'Invalid JSON in canvass_data',
+                'error'   => json_last_error_msg(),
+            ], 422);
+        }
+        $deletedIds = $request->input('deleted_attachments', []);
+        $request->replace($data);
+
         $user = $request->user();
         $validated = $this->canvassValidation($request);
 
@@ -127,8 +151,6 @@ class CanvassSheetController extends Controller
                     'remarks' => $validated['remarks'] ?? null,
                     'status_id' => 1,
                 ]);
-            
-            
 
             if ($user->role == "maker") {
                 // changelog for updates
@@ -169,7 +191,6 @@ class CanvassSheetController extends Controller
                     }
 
                     foreach ($itemData['vendors'] ?? [] as $vendorData) {
-                        $vendor = Vendor::findOrFail($vendorData['vendor_id']);
                         CanvassItemVendor::updateOrCreate(
                             [
                                 'canvass_item_id' => $canvassItem->id,
@@ -182,6 +203,41 @@ class CanvassSheetController extends Controller
                                 'remarks' => $vendorData['remarks'] ?? null,
                             ]
                         );
+                    }
+                }
+
+                // add attachments
+                $files = $request->file('attachments', []);
+                foreach ((array) $files as $file) {
+                    if (!$file || !$file->isValid()) {
+                        Log::info("Invalid file skipped", ['name' => $file?->getClientOriginalName()]);
+                        continue;
+                    }
+
+                    $path = $file->store('canvass', 'public');
+                    Attachment::create([
+                        'ref_id'    => $canvass->id,
+                        'ref_table' => 'canvass_sheets',
+                        'file_name' => $file->getClientOriginalName(),
+                        'path'      => $path,
+                        'added_by'  => $user->username,
+                    ]);
+                }
+                // delete attachments
+                if (!empty($deletedIds)) {
+                    $attachmentsToDelete = Attachment::whereIn('id', $deletedIds)
+                        ->where('ref_table', 'canvass_sheets')
+                        ->where('ref_id', $canvass->id)
+                        ->get();
+
+                    foreach ($attachmentsToDelete as $attachment) {
+                        // Delete file from storage
+                        if ($attachment->path && Storage::disk('public')->exists($attachment->path)) {
+                            Storage::disk('public')->delete($attachment->path);
+                        }
+
+                        // Delete database record
+                        $attachment->delete();
                     }
                 }
 
@@ -235,6 +291,8 @@ class CanvassSheetController extends Controller
                 'items.*.vendors.*.price' => 'required|numeric|min:0',
                 'items.*.vendors.*.amount' => 'required|integer|min:0',
                 'items.*.vendors.*.remarks' => 'nullable|string',
+                'attachments' => 'sometimes|array|max:5',
+                'attachments.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xlsx,xls|max:5120',
             ];
 
             $messages = [
@@ -248,11 +306,18 @@ class CanvassSheetController extends Controller
                 'items.*.vendors.*.stock.required' => 'Stock is required for each vendor.',
                 'items.*.vendors.*.price.required' => 'Price is required for each vendor.',
                 'items.*.vendors.*.amount.required' => 'Quantity to order is required.',
+
+                'attachments.max' => 'You can only upload up to 5 files.',
+                'attachments.*.mimes' => 'Each file must be a PDF, JPG, PNG, DOC, DOCX, XLSX, or XLS.',
+                'attachments.*.max' => 'Each file must be under 5MB.',
             ];
 
             $validator = Validator::make($request->all(), $rules, $messages);
 
             $validator->after(function ($validator) use ($request) {
+                if (!is_array($request->items)) {
+                    return;
+                }
                 $itemIds = [];
                 foreach ($request->items as $i => $item) {
                     $itemId = $item['item_id'];

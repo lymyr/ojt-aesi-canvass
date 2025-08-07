@@ -11,7 +11,7 @@ import axios from "../axios";
 import PdfView from "../components/PdfView";
 import html2pdf from "html2pdf.js";
 
-function CanvassView({mode = "create", setTitle, userRole = "maker", status = "pending"}) {
+function CanvassView({mode = "create", setTitle, userRole = "maker", status = "pending", username}) {
   const isEditMode = mode === "edit";
   const isCreateMode = mode === "create";
   const { id } = useParams();
@@ -33,31 +33,68 @@ function CanvassView({mode = "create", setTitle, userRole = "maker", status = "p
   }, [setTitle, isEditMode, id]);
 
   const [canvassData, setCanvassData] = useState(null);
-  
+  const [attachments, setAttachments] = useState([]);
+  const [deletedAttachments, setDeletedAttachments] = useState([]);
+
   useEffect(() => {
     if (mode === "edit") {
       axios.get(`/api/canvass-sheets/${id}`).then(res => {
         setCanvassData(res.data);
+        setAttachments(res.data.attachments || []);
       });
     }
   }, [id, mode]);
 
+
   const handleSave = async () => {
     if (!formRef.current) return;
 
-    if (isEditMode && !formRef.current.hasChanges()) {
+    const formHasChanges = formRef.current.hasChanges();
+    const attachmentsChanged = attachments.some(a => a instanceof File) || deletedAttachments.length > 0;
+    if (isEditMode && !formHasChanges && !attachmentsChanged) {
       alert("No changes detected. Canvass sheet was not updated.");
       return;
     }
     
-    const formData = formRef.current.getFormData(); // Custom method from CanvassForm
+     // build FormData
+    const formDataJSON = formRef.current.getFormData();
+    const payload = new FormData();
+
+    // 1) Append the canvass JSON
+    payload.append('canvass_data', JSON.stringify(formDataJSON));
+    console.log(JSON.stringify(formRef.current.getFormData(), null, 2));
+
+    // 2) Append only new File objects
+    attachments.forEach(file => {
+      if (file instanceof File) {
+        payload.append('attachments[]', file);
+      }
+    });
+
+    if (deletedAttachments.length > 0) {
+      deletedAttachments.forEach(id => {
+        payload.append('deleted_attachments[]', id);
+      });
+    }
+
+
+    // choose URL & method
+    const url   = isEditMode
+      ? `/api/canvass-sheets/${id}`
+      : `/api/canvass-sheets`;
+    const method = "post";
+    if (isEditMode) {
+      payload.append('_method', 'put');
+    }
     try {
-        const url = isEditMode ? `/api/canvass-sheets/${id}` : "/api/canvass-sheets";
-        const method = isEditMode ? "put" : "post";
-        const response = await axios[method](url, formData);
-        alert(response.data.message); // ✅ get success message from backend
-        method === 'put' ? navigate(`/api/canvass-sheets/${id}`) : navigate("/");
-        setTimeout(() => navigate("/canvass"), 10);
+      const response = await axios.request({
+        url,
+        method,
+        data: payload,
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      alert(response.data.message);
+      navigate(isEditMode ? `/canvass` : `/`);
     } catch (error) {
         console.error("Save failed:", error);
         const res = error.response?.data;
@@ -99,7 +136,7 @@ function CanvassView({mode = "create", setTitle, userRole = "maker", status = "p
 
     try {
       const response = await axios.put(`/api/canvass-sheets/${id}`, {
-        status_id: 3, // 👈 assuming 3 = "Needs Attention", adjust as needed
+        status_id: 3,
         remarks: reason,
       });
 
@@ -237,7 +274,10 @@ function CanvassView({mode = "create", setTitle, userRole = "maker", status = "p
       </div>
 
       <div style={{ display: activeTab === "documents" ? "block" : "none" }}>
-        <DocAttach editClicked={editClicked || isCreateMode} />
+        <DocAttach canvassData={canvassData} onChange={setAttachments} 
+        setDeletedAttachments={setDeletedAttachments}
+        username={username}
+        editClicked={editClicked || isCreateMode} />
       </div>
 
       {isEditMode && (

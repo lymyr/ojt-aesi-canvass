@@ -24,6 +24,8 @@
     padding: 4px 8px;
     font-size: 0.8rem;
     border-radius: 4px;
+    padding-right: 20px;
+    position: relative;
 }
 
 .attach input[type="file"] {
@@ -49,10 +51,105 @@
     cursor: pointer;
 }
 
-.attach input[type="file"]:disabled {
-    color:gray;
+.attach input[type="file"] {
+    color: transparent;
+    width: fit-content;
 }
 .attach input[type="file"]:disabled::file-selector-button {
     background-color: rgb(190, 196, 186);
     color: rgb(132, 141, 133);
+}
+
+
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 0.5px solid rgb(84, 108, 84);
+  font-size: clamp(0.7rem, 0.8vw + 0.5rem, 0.875rem);
+}
+
+.table th,
+.table td {
+  border: 0.5px solid rgb(84, 108, 84);
+  padding: 8px;
+}
+
+.table th {
+  background-color: rgb(118, 146, 120);
+  color: rgb(227, 248, 229);
+  border: 0.5px solid rgb(84, 108, 84);
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding:12px 8px;
+  font-size: clamp(0.75rem, 0.8vw + 0.6rem, 0.82rem);
+}
+
+.table tr:nth-child(odd) td {
+  background-color: rgb(232, 241, 233);
+}
+
+.table tr:nth-child(n+1) td:nth-child(3) {
+    text-align: right;
+}
+.table button {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    width: fit-content;
+    margin: auto;
+    display: flex;
+
+    padding-inline:6px;
+    font-weight: 900;
+
+    background-color: transparent;
+    border-radius: 3px;
+    border: 1px solid rgb(211, 118, 118);
+    color:rgb(211, 118, 118);
+    font-size: 0.75rem;
+}
+
+.table button:hover {
+    color:rgb(255, 206, 206);
+    background-color: rgb(211, 118, 118);
+    border: 1px solid rgb(211, 118, 118);
+    box-shadow:1px 1px 3px rgb(79, 79, 79);
+    transition: 150ms;
+}
+.table td:has(button) {
+    padding: 0;
+}
+.table tr:has(button:hover) td,
+.table tr:has(button:hover) {
+    background-color: rgb(209, 181, 98);
+    color: rgb(47, 71, 31);
+    transition: 150ms;
+}
+
+.table tbody .newAttach td,
+.table tbody .newAttach {
+    background-color: rgb(139, 219, 164);
+    background-color: rgb(152, 173, 153);
+    color: rgb(222, 245, 224);
+}
+
+.table tbody .newAttach td:first-child::before {
+    content: "+ ";
+    margin-right: 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    position: relative;
+    bottom:-0.5px;
+}
+.table tbody .newAttach td button {
+    border: 1px solid rgb(222, 245, 224);
+    color: rgb(222, 245, 224);
+}
+.table tbody .newAttach td button:hover {
+    background-color: rgb(112, 36, 36);
+    border: 1px solid rgb(112, 36, 36);
+    color: rgb(222, 245, 224);
 }

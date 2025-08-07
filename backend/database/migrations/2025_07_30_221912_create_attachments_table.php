@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             // shouldnt be limited to canvass sheet
             $table->foreignId('ref_id')->constrained('canvass_sheets')->onDelete('cascade');
+            $table->string('ref_table');
             $table->string('file_name');
             $table->string('path');
             $table->string('added_by');

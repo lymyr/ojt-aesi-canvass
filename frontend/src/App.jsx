@@ -24,10 +24,10 @@ function MainLayout({ setTitle, title, onLogout, user }) {
         <div className="inner-content">
           <Routes>
             <Route path="/canvass" element={<Dashboard setTitle={setTitle} userRole={user.role}/>} />
-            <Route path="/canvass/new" element={<CanvassView setTitle={setTitle} userRole={user.role} />} />
+            <Route path="/canvass/new" element={<CanvassView setTitle={setTitle} username={user.username} userRole={user.role} />} />
             <Route
               path="/canvass/:id"
-              element={<CanvassView mode="edit" setTitle={setTitle} userRole={user.role}/>}
+              element={<CanvassView mode="edit" setTitle={setTitle} username={user.username} userRole={user.role}/>}
             />
             <Route path="/items" element={<ListItem setTitle={setTitle} />} />
             <Route path="/vendors" element={<ListVendor setTitle={setTitle} />} />
