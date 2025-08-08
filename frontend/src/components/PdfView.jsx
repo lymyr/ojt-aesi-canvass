@@ -43,7 +43,6 @@ function PdfView({ canvassData, id, ref }) {
             <tbody>
                <tr>
                 <td>Item</td>
-                <td>Quantity Needed</td>
                 <td>UOM</td>
                 <td>Unit Price</td>
                 <td>Stock</td>
@@ -54,7 +53,6 @@ function PdfView({ canvassData, id, ref }) {
               {vendorData.items.map((item, i) => (
                 <tr key={i}>
                   <td>{item.description || "N/A"}</td>
-                  <td className={s.num}>{item.qty_needed || 0}</td>
                   <td>{item.uom || "N/A"}</td>
                   <td className={s.num}>{formatPrice(item.price)}</td>
                   <td className={s.num}>{item.stock ?? 0}</td>
