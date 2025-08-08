@@ -9,7 +9,7 @@ class VendorController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Vendor::orderBy('created_at', 'desc');
+        $query = Vendor::orderBy('id', 'desc');
 
         if ($request->has('limit')) {
             $perPage = (int) $request->input('limit', 16);

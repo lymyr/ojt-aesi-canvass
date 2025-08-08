@@ -13,7 +13,7 @@ class UserController extends Controller
     {
         $perPage = (int) $request->input('limit', 16);
         $users = User::select('id', 'username', 'role')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
             ->paginate($perPage);
         return response()->json([
             'data' => $users->items(),

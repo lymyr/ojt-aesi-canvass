@@ -9,7 +9,7 @@ class UomController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Uom::orderBy('created_at', 'desc');
+        $query = Uom::orderBy('id', 'desc');
         if ($request->has('limit')) {
             $perPage = (int) $request->input('limit', 16);
             $uoms = $query->paginate($perPage);

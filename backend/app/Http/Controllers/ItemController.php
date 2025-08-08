@@ -10,7 +10,7 @@ class ItemController extends Controller
 {
    public function index(Request $request)
     {
-        $query = Item::with('uom:id,id,abbreviation')->orderBy('created_at', 'desc');
+        $query = Item::with('uom:id,id,abbreviation')->orderBy('id', 'desc');
 
         if ($request->has('limit')) {
             $perPage = (int) $request->input('limit', 16);

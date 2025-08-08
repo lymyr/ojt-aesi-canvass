@@ -155,7 +155,7 @@ function Changelog({ refTable = 'canvass_sheets', id }) {
                                 <div className={`${s.dataWrapper} ${s.remarks}`}>
                                     {log.before?.status_id !== log.after?.status_id && (
                                         <div className={s.fields}>
-                                            <p className={s.statusHeader}><span>Status:</span> <div className={s.statusChanges}>{getStatusName(log.before?.status_id)} → {getStatusName(log.after?.status_id)}</div></p>
+                                            <div className={s.statusHeader}><span>Status:</span> <div className={s.statusChanges}>{getStatusName(log.before?.status_id)} → {getStatusName(log.after?.status_id)}</div></div>
                                         </div>
                                     )}
                                     {log.before?.approved_by || log.after?.approved_by ? (

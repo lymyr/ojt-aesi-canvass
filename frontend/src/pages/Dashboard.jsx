@@ -27,7 +27,7 @@ function Dashboard({ setTitle, userRole }) {
       }));
 
       setRows(formattedRows);
-      setTotalPages(Math.ceil(meta.total / 16));
+      setTotalPages(Math.max(1, Math.ceil(meta.total / 16)));
     } catch (error) {
       console.error("Error loading canvass sheets", error);
       setRows([]);

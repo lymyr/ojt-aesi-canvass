@@ -20,7 +20,7 @@ class CanvassSheetController extends Controller
     {
         $query = CanvassSheet::with('status:id,name')
             ->select('id', 'created_by', 'approved_by', 'status_id', 'created_at')
-            ->orderBy('created_at', 'desc');
+            ->orderBy('id', 'desc');
         if ($request->has('limit')) {
             $perPage = (int) $request->input('limit', 16);
             $canvasses = $query->paginate($perPage);
