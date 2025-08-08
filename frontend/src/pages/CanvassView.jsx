@@ -94,7 +94,7 @@ function CanvassView({mode = "create", setTitle, userRole = "maker", status = "p
         headers: { "Content-Type": "multipart/form-data" }
       });
       alert(response.data.message);
-      navigate(isEditMode ? `/canvass` : `/`);
+      navigate('/canvass');
     } catch (error) {
         console.error("Save failed:", error);
         const res = error.response?.data;
@@ -109,14 +109,20 @@ function CanvassView({mode = "create", setTitle, userRole = "maker", status = "p
     }
   };
 
-
   const handleApprove = async () => {
     if (userRole !== "approver") return;
+
     if (confirm("Are you sure you want to approve this canvass?")) {
+      const payload = new FormData();
+      payload.append('_method', 'put');
+      payload.append('canvass_data', JSON.stringify({
+        status_id: 2,
+        remarks: null
+      }));
+
       try {
-        const response = await axios.put(`/api/canvass-sheets/${id}`, {
-          status_id: 2,
-          remarks: null
+        const response = await axios.post(`/api/canvass-sheets/${id}`, payload, {
+          headers: { "Content-Type": "multipart/form-data" }
         });
 
         alert("Canvass sheet has been successfully approved.");
@@ -125,8 +131,9 @@ function CanvassView({mode = "create", setTitle, userRole = "maker", status = "p
         console.error("Approve failed:", error);
         alert("Failed to approve canvass.");
       }
-    };
-  }
+    }
+  };
+
 
   const handleReject = async () => {
     if (userRole !== "approver") return;

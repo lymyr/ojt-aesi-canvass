@@ -155,8 +155,15 @@ class CanvassSheetController extends Controller
             if ($user->role == "maker") {
                 // changelog for updates
                 $before = null;
+                
                 if ($id) {
-                    $before = CanvassSheet::with(['items.vendors'])->findOrFail($id)->toArray();
+                    $before = CanvassSheet::with([
+                        'items.item:id,description',
+                        'items.vendors' => function ($query) {
+                            $query->orderBy('vendor_id');
+                        },
+                        'items.vendors.vendor:id,name'
+                    ])->findOrFail($id)->toArray();
                 }
 
                 if ($id && $canvass->status_id == 3) {
@@ -243,16 +250,41 @@ class CanvassSheetController extends Controller
 
                 // changelog for updates
                 if ($id) {
-                    $after = CanvassSheet::with(['items.vendors'])->findOrFail($id)->toArray();
+                    $after = CanvassSheet::with([
+                        'items.item:id,description',
+                        'items.vendors' => function ($query) {
+                            $query->orderBy('vendor_id');
+                        },
+                        'items.vendors.vendor:id,name'
+                    ])->findOrFail($id)->toArray();
+
                     log_change('canvass_sheets', $canvass->id, $user->username, $before, $after);
                     $canvass->touch();
                 }
             }
             else if ($user->role == "approver") {
+                $before = CanvassSheet::with([
+                    'items.item:id,description',
+                    'items.vendors' => function ($query) {
+                        $query->orderBy('vendor_id');
+                    },
+                    'items.vendors.vendor:id,name'
+                ])->findOrFail($id)->toArray();
+
                 $canvass->remarks = $validated['remarks'];
                 $canvass->status_id = $validated['status_id'];
                 $canvass->approved_by = $user->username;
                 $canvass->save();
+
+                $after = CanvassSheet::with([
+                    'items.item:id,description',
+                    'items.vendors' => function ($query) {
+                        $query->orderBy('vendor_id');
+                    },
+                    'items.vendors.vendor:id,name'
+                ])->findOrFail($id)->toArray();
+
+                log_change('canvass_sheets', $canvass->id, $user->username, $before, $after);
             }
 
             DB::commit();
@@ -291,8 +323,8 @@ class CanvassSheetController extends Controller
                 'items.*.vendors.*.price' => 'required|numeric|min:0',
                 'items.*.vendors.*.amount' => 'required|integer|min:0',
                 'items.*.vendors.*.remarks' => 'nullable|string',
-                'attachments' => 'sometimes|array|max:5',
-                'attachments.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xlsx,xls|max:5120',
+                'attachments' => 'sometimes|array',
+                'attachments.*' => 'file|max:5120',
             ];
 
             $messages = [
@@ -306,9 +338,7 @@ class CanvassSheetController extends Controller
                 'items.*.vendors.*.stock.required' => 'Stock is required for each vendor.',
                 'items.*.vendors.*.price.required' => 'Price is required for each vendor.',
                 'items.*.vendors.*.amount.required' => 'Quantity to order is required.',
-
-                'attachments.max' => 'You can only upload up to 5 files.',
-                'attachments.*.mimes' => 'Each file must be a PDF, JPG, PNG, DOC, DOCX, XLSX, or XLS.',
+                
                 'attachments.*.max' => 'Each file must be under 5MB.',
             ];
 

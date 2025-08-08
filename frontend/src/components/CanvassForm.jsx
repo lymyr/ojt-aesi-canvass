@@ -32,7 +32,7 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
 
   useImperativeHandle(ref, () => ({
   getFormData: () => {
-    console.log("🔍 Starting getFormData...");
+    // console.log("🔍 Starting getFormData...");
     const processedItems = items
       .filter(item => {
         const isValid = !!item.item_id;
@@ -40,7 +40,7 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
         return isValid;
       })
       .map((item, itemIndex) => {
-        console.log(`📦 Processing item #${itemIndex + 1}:`, item);
+        // console.log(`📦 Processing item #${itemIndex + 1}:`, item);
         const processedVendors = item.vendors
           .filter((v, vendorIndex) => {
             const isValidPrice = typeof v.price === "string" && v.price.trim() !== "" && !isNaN(parseFloat(v.price));
@@ -65,7 +65,7 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
               amount: parseInt(v.amount, 10) || 0,
               remarks: v.remarks?.trim() === "" ? null : v.remarks,
             };
-            console.log(`✅ Vendor #${vendorIndex + 1} for item_id ${item.item_id}:`, parsed);
+            // console.log(`✅ Vendor #${vendorIndex + 1} for item_id ${item.item_id}:`, parsed);
             return parsed;
           });
 
@@ -76,7 +76,7 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
         };
       });
 
-    console.log("✅ Final processed form data:", processedItems);
+    // console.log("✅ Final processed form data:", processedItems);
     return { items: processedItems };
   },
   hasChanges: () => {
@@ -330,40 +330,34 @@ const CanvassForm = forwardRef(({ isEditing = false, editClicked = true, initial
   }, []);
 
   useEffect(() => {
-  const filteredVendors = vendors.filter(v => v && v.trim() !== ""); // ✅ correct filtering
+    const filteredVendors = vendors.filter(v => v && v.trim() !== "");
+    setItems(prevItems =>
+      prevItems.map(item => {
+        const existing = (item.vendors || []).map(v => ({ ...v }));
+        const result = [];
 
-  setItems(prevItems => {
-    return prevItems.map(item => {
-      const updatedVendors = [...(item.vendors || [])];
+        for (let i = 0; i < filteredVendors.length; i++) {
+          const vendorName = filteredVendors[i];
+          const matchVendor = allVendorData.find(x => x.name === vendorName);
+          const existingMatch = existing.find(v =>
+            v.vendor_id === matchVendor?.id ||
+            (v.vendor_id == null && vendorName === v.vendor_name) // fallback if vendor_name exists
+          );
 
-      while (updatedVendors.length < filteredVendors.length) {
-        const vendorName = filteredVendors[updatedVendors.length];
-        const match = allVendorData.find(v => v.name === vendorName);
+          result.push({
+            vendor_id: matchVendor?.id ?? existingMatch?.vendor_id ?? null,
+            price: existingMatch?.price ?? "",
+            amount: existingMatch?.amount ?? "",
+            stock: existingMatch?.stock ?? "",
+            remarks: existingMatch?.remarks ?? "",
+            total: existingMatch?.total ?? 0,
+          });
+        }
 
-        updatedVendors.push({
-          vendor_id: match?.id || null,
-          price: "",
-          amount: "",
-          stock: "",
-          remarks: "",
-          total: 0,
-        });
-      }
-
-      if (updatedVendors.length > filteredVendors.length) {
-        updatedVendors.length = filteredVendors.length;
-      }
-
-      updatedVendors.forEach((v, i) => {
-        const vendorName = filteredVendors[i];
-        const match = allVendorData.find(v => v.name === vendorName);
-        v.vendor_id = match?.id || null;
-      });
-
-      return { ...item, vendors: updatedVendors };
-    });
-  });
-}, [vendors, allVendorData]);
+        return { ...item, vendors: result };
+      })
+    );
+  }, [vendors, allVendorData]);
   
   return (
     <>
