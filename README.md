@@ -35,12 +35,12 @@ Ensure your local environment has the following installed:
 1. ```cd backend```
 2. ```composer install```
 3. Copy the environment file and generate an app key:
-  ```cp .env.example .env```
-  ```php artisan key:generate```
-4. Configure your .env file with your local database credentials.
-5. Run database migrations:
+   - ```cp .env.example .env```
+   - ```php artisan key:generate```
+5. Configure your .env file with your local database credentials.
+6. Run database migrations:
    ```php artisan migrate:fresh --seed```
-6. Start the Laravel development server:
+7. Start the Laravel development server:
    ```php artisan serve```
 
 ### Frontend
