@@ -47,3 +47,13 @@ Ensure your local environment has the following installed:
 1. ```cd frontend```
 2. ```npm install```
 3. ```npm run dev```
+
+## Test Credentials
+
+After running the database migrations and seeders (`php artisan migrate:fresh --seed`), you can use the following default accounts to test the application's role-based access:
+
+| Role | Username | Password |
+| :--- | :--- | :--- |
+| **Maker** | `maker` | `123` |
+| **Approver** | `approver` | `123` |
+| **Admin** | `admin` | `123` |
